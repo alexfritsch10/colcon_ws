@@ -12,7 +12,7 @@ public:
     ZedCameraNode()
         : Node("zed_camera_node")
     {
-        // Construct the full path to ZED2.yaml and read the calibration parameters
+        // Read the calibration parameters
         std::string strSettingsFile = "/root/colcon_ws/src/zed-package/ZED2.yaml";
 
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
@@ -40,10 +40,41 @@ public:
         int rows_r = fsSettings["RIGHT.height"];
         int cols_r = fsSettings["RIGHT.width"];
 
-        if (K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
-            rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0)
-        {
-            RCLCPP_ERROR(this->get_logger(), "Calibration parameters to rectify stereo are missing!");
+        if (K_l.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.K is empty");
+        }
+        if (K_r.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.K is empty");
+        }
+        if (P_l.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.P is empty");
+        }
+        if (P_r.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.P is empty");
+        }
+        if (R_l.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.R is empty");
+        }
+        if (R_r.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.R is empty");
+        }
+        if (D_l.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.D is empty");
+        }
+        if (D_r.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.D is empty");
+        }
+        if (rows_l == 0) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.height is 0");
+        }
+        if (rows_r == 0) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.height is 0");
+        }
+        if (cols_l == 0) {
+            RCLCPP_ERROR(this->get_logger(), "LEFT.width is 0");
+        }
+        if (cols_r == 0) {
+            RCLCPP_ERROR(this->get_logger(), "RIGHT.width is 0");
         }
 
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, M1l, M2l);
