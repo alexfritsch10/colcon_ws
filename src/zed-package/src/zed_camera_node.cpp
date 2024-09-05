@@ -13,7 +13,7 @@ public:
         : Node("zed_camera_node")
     {
         // Construct the full path to ZED2.yaml and read the calibration parameters
-        std::string strSettingsFile = "/root/colcon_ws/zed-package/ZED2.yaml";
+        std::string strSettingsFile = "/root/colcon_ws/src/zed-package/ZED2.yaml";
 
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
         if (!fsSettings.isOpened())
