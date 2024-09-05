@@ -12,8 +12,11 @@ public:
     ZedCameraNode()
         : Node("zed_camera_node")
     {
-        // Create rectification maps
-        const std::string strSettingsFile = "../ZED2.yaml";
+        // Get the package share directory for zed-package
+        std::string package_share_dir = ament_index_cpp::get_package_share_directory("zed-package");
+        
+        // Construct the full path to ZED2.yaml and read the calibration parameters
+        std::string strSettingsFile = package_share_dir + "/ZED2.yaml";
 
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
         if (!fsSettings.isOpened())
@@ -21,6 +24,7 @@ public:
             RCLCPP_ERROR(this->get_logger(), "Wrong path to settings");
         }
 
+        // Create Rectification maps
         cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
         fsSettings["LEFT.K"] >> K_l;
         fsSettings["RIGHT.K"] >> K_r;
