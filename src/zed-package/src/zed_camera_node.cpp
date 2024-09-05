@@ -12,11 +12,8 @@ public:
     ZedCameraNode()
         : Node("zed_camera_node")
     {
-        // Get the package share directory for zed-package
-        std::string package_share_dir = ament_index_cpp::get_package_share_directory("zed-package");
-        
         // Construct the full path to ZED2.yaml and read the calibration parameters
-        std::string strSettingsFile = package_share_dir + "/ZED2.yaml";
+        std::string strSettingsFile = "/root/colcon_ws/zed-package/ZED2.yaml";
 
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
         if (!fsSettings.isOpened())
