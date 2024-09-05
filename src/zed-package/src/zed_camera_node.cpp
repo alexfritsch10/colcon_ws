@@ -21,6 +21,11 @@ public:
             RCLCPP_ERROR(this->get_logger(), "Wrong path to settings");
         }
 
+        // Output the entire file contents
+        std::stringstream ss;
+        ss << fsSettings; // Print the content of the file to the stringstream
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "File contents:\n%s", ss.str().c_str());
+
         // Create Rectification maps
         cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
         fsSettings["LEFT.K"] >> K_l;
@@ -40,40 +45,52 @@ public:
         int rows_r = fsSettings["RIGHT.height"];
         int cols_r = fsSettings["RIGHT.width"];
 
-        if (K_l.empty()) {
+        if (K_l.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.K is empty");
         }
-        if (K_r.empty()) {
+        if (K_r.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.K is empty");
         }
-        if (P_l.empty()) {
+        if (P_l.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.P is empty");
         }
-        if (P_r.empty()) {
+        if (P_r.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.P is empty");
         }
-        if (R_l.empty()) {
+        if (R_l.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.R is empty");
         }
-        if (R_r.empty()) {
+        if (R_r.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.R is empty");
         }
-        if (D_l.empty()) {
+        if (D_l.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.D is empty");
         }
-        if (D_r.empty()) {
+        if (D_r.empty())
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.D is empty");
         }
-        if (rows_l == 0) {
+        if (rows_l == 0)
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.height is 0");
         }
-        if (rows_r == 0) {
+        if (rows_r == 0)
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.height is 0");
         }
-        if (cols_l == 0) {
+        if (cols_l == 0)
+        {
             RCLCPP_ERROR(this->get_logger(), "LEFT.width is 0");
         }
-        if (cols_r == 0) {
+        if (cols_r == 0)
+        {
             RCLCPP_ERROR(this->get_logger(), "RIGHT.width is 0");
         }
 
