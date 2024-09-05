@@ -151,6 +151,8 @@ private:
     sl_oc::video::VideoCapture video_capture_;
     sl_oc::sensors::SensorCapture sensor_capture_;
 
+    cv::Mat M1l, M2l, M1r, M2r;
+
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr right_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
