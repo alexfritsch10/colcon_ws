@@ -13,7 +13,7 @@ public:
         : Node("zed_camera_node")
     {
         // Create rectification maps
-        const string strSettingsFile = "../ZED2.yaml";
+        const std::string strSettingsFile = "../ZED2.yaml";
 
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
         if (!fsSettings.isOpened())
