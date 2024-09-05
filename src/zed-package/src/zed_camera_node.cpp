@@ -18,8 +18,7 @@ public:
         cv::FileStorage fsSettings(strSettingsFile, cv::FileStorage::READ);
         if (!fsSettings.isOpened())
         {
-            cerr << "ERROR: Wrong path to settings" << endl;
-            assert(0);
+            RCLCPP_ERROR(this->get_logger(), "Wrong path to settings");
         }
 
         cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
@@ -43,8 +42,7 @@ public:
         if (K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() ||
             rows_l == 0 || rows_r == 0 || cols_l == 0 || cols_r == 0)
         {
-            cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
-            assert(0);
+            RCLCPP_ERROR(this->get_logger(), "Calibration parameters to rectify stereo are missing!");
         }
 
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l.rowRange(0, 3).colRange(0, 3), cv::Size(cols_l, rows_l), CV_32F, M1l, M2l);
