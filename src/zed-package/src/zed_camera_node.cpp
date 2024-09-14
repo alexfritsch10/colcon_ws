@@ -138,7 +138,8 @@ private:
     {
         sensor_msgs::msg::Image::SharedPtr img_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
         img_msg->header.stamp = this->now();
-        img_msg->header.frame_id = "camera_frame"; // Set frame ID properly
+        img_msg->header.frame_id = "camera_frame";
+        RCLCPP_INFO(this->get_logger(), "Publishing image: width=%d, height=%d", img_msg->width, img_msg->height);
         pub->publish(*img_msg);
     }
 
