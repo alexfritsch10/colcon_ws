@@ -23,7 +23,7 @@ public:
         // Initialize the camera
         if (!video_capture_.initializeVideo())
         {
-            RCLCPP_ERROR(this->get_logger(), "Failed to initialize video capture");
+            RCLCPP_INFO(this->get_logger(), "Failed to initialize video capture");
             return;
         }
 
@@ -33,13 +33,13 @@ public:
         {
             if (!sensor_capture_.initializeSensors(devs[0]))
             {
-                RCLCPP_ERROR(this->get_logger(), "Failed to initialize sensor capture");
+                RCLCPP_INFO(this->get_logger(), "Failed to initialize sensor capture");
                 return;
             }
         }
         else
         {
-            RCLCPP_ERROR(this->get_logger(), "No devices found for sensor capture");
+            RCLCPP_INFO(this->get_logger(), "No devices found for sensor capture");
             return;
         }
 
@@ -88,7 +88,7 @@ private:
         sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
         auto imu_msg = sensor_msgs::msg::Imu();
         imu_msg.header.stamp = this->now();
-        imu_msg.header.frame_id = "imu_frame"; // Make sure to set the frame ID properly
+        imu_msg.header.frame_id = "imu_frame";
         imu_msg.linear_acceleration.x = imu_data.aX;
         imu_msg.linear_acceleration.y = imu_data.aY;
         imu_msg.linear_acceleration.z = imu_data.aZ;
@@ -97,7 +97,7 @@ private:
         imu_msg.angular_velocity.z = imu_data.gZ;
         imu_pub_->publish(imu_msg);
 
-        RCLCPP_DEBUG(this->get_logger(), "IMU data: aX=%f, aY=%f, aZ=%f, gX=%f, gY=%f, gZ=%f",
+        RCLCPP_INFO(this->get_logger(), "IMU data: aX=%f, aY=%f, aZ=%f, gX=%f, gY=%f, gZ=%f",
                      imu_data.aX, imu_data.aY, imu_data.aZ, imu_data.gX, imu_data.gY, imu_data.gZ);
     }
 
@@ -130,7 +130,7 @@ private:
         }
         else
         {
-            RCLCPP_ERROR(this->get_logger(), "Invalid frame data or dimensions: width=%d, height=%d", frame.width, frame.height);
+            RCLCPP_INFO(this->get_logger(), "Invalid frame data or dimensions: width=%d, height=%d", frame.width, frame.height);
         }
     }
 
