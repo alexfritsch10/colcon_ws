@@ -83,7 +83,7 @@ private:
     void initializeCameraInfoMsgs()
     {
         // Left Camera Info Message
-        left_info_msg_.header.frame_id = "camera_link";
+        left_info_msg_.header.frame_id = "base_link";
         left_info_msg_.width = IMAGE_WIDTH;
         left_info_msg_.height = IMAGE_HEIGHT;
 
@@ -101,7 +101,7 @@ private:
                             P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
 
         // Right Camera Info Message
-        right_info_msg_.header.frame_id = "camera_link";
+        right_info_msg_.header.frame_id = "base_link";
         right_info_msg_.width = IMAGE_WIDTH;
         right_info_msg_.height = IMAGE_HEIGHT;
 
@@ -181,7 +181,7 @@ private:
     {
         sensor_msgs::msg::Image::SharedPtr img_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
         img_msg->header.stamp = this->now();
-        img_msg->header.frame_id = "camera_link";
+        img_msg->header.frame_id = "base_link";
         RCLCPP_INFO(this->get_logger(), "Publishing image: width=%d, height=%d", img_msg->width, img_msg->height);
         pub->publish(*img_msg);
     }
