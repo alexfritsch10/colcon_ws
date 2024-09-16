@@ -22,8 +22,10 @@ def generate_launch_description():
                 'rtabmap_args': '--delete_db_on_start --Vis/CorFlowMaxLevel 5 --Stereo/MaxDisparity 200',
                 'frame_id': 'base_link',
                 'approx_sync': True,
-                'queue_size': 10,
+                'sync_queue_size': 20,
                 'qos': 2,
+                'subscribe_stereo': True,
+                'log_level': 'debug'
             }],
         ),
     ])
