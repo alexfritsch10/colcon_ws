@@ -120,8 +120,9 @@ private:
 
     void captureAndPublish()
     {
-        captureAndPublishImages();
-        publishCameraInfo();
+        auto time = this->now();
+        captureAndPublishImages(time);
+        publishCameraInfo(time);
         // captureAndPublishIMU();
     }
 
@@ -144,7 +145,7 @@ private:
     //                 imu_data.aX, imu_data.aY, imu_data.aZ, imu_data.gX, imu_data.gY, imu_data.gZ);
     // }
 
-    void captureAndPublishImages()
+    void captureAndPublishImages(rclcpp::Time time)
     {
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
@@ -168,7 +169,6 @@ private:
             cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
-            auto time = this->now();
             publishImage(left_rectified, left_image_pub_, time);
             publishImage(right_rectified, right_image_pub_, time);
         }
@@ -187,9 +187,11 @@ private:
         pub->publish(*img_msg);
     }
 
-    void publishCameraInfo()
+    void publishCameraInfo(rclcpp::Time time)
     {
         RCLCPP_INFO(this->get_logger(), "Publishing camera info");
+        left_info_msg_.header.stamp = time;
+        right_info_msg_.header.stamp = time;
         left_info_pub_->publish(left_info_msg_);
         right_info_pub_->publish(right_info_msg_);
     }
