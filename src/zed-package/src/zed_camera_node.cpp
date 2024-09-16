@@ -168,8 +168,9 @@ private:
             cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
-            publishImage(left_rectified, left_image_pub_);
-            publishImage(right_rectified, right_image_pub_);
+            auto time = this->now();
+            publishImage(left_rectified, left_image_pub_, time);
+            publishImage(right_rectified, right_image_pub_, time);
         }
         else
         {
@@ -177,10 +178,10 @@ private:
         }
     }
 
-    void publishImage(const cv::Mat &image, const rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub)
+    void publishImage(const cv::Mat &image, const rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub, rclcpp::Time time)
     {
         sensor_msgs::msg::Image::SharedPtr img_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
-        img_msg->header.stamp = this->now();
+        img_msg->header.stamp = time;
         img_msg->header.frame_id = "base_link";
         RCLCPP_INFO(this->get_logger(), "Publishing image: width=%d, height=%d", img_msg->width, img_msg->height);
         pub->publish(*img_msg);
