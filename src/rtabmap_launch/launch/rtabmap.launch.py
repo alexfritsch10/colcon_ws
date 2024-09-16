@@ -19,10 +19,11 @@ def generate_launch_description():
             name='rtabmap',
             output='screen',
             parameters=[{
-                'frame_id': 'base_link',
-                'wait_imu_to_init': True,
-                'approx_sync': True,
                 'rtabmap_args': '--delete_db_on_start --Vis/CorFlowMaxLevel 5 --Stereo/MaxDisparity 200',
+                'frame_id': 'base_link',
+                'approx_sync': True,
+                'queue_size': 10,
+                'qos': 2,
             }],
         ),
     ])
