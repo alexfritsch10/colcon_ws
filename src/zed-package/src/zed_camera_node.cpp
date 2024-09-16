@@ -15,13 +15,13 @@ public:
     {
         // Initialize camera calibration parameters
         initializeCalibrationParams();
-        // initializeCameraInfoMsgs();
+        initializeCameraInfoMsgs();
 
         // Initialize publishers
         left_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/left/image_rect", 10);
         right_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/right/image_rect", 10);
-        // left_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/left/camera_info", 10);
-        // right_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/right/camera_info", 10);
+        left_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/left/camera_info", 10);
+        right_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/right/camera_info", 10);
         // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
         // Initialize the camera
@@ -80,48 +80,48 @@ private:
         cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1r, M2r);
     }
 
-    // void initializeCameraInfoMsgs()
-    // {
-    //     // Left Camera Info Message
-    //     left_info_msg_.header.frame_id = "camera_left_frame";
-    //     left_info_msg_.width = IMAGE_WIDTH;
-    //     left_info_msg_.height = IMAGE_HEIGHT;
+    void initializeCameraInfoMsgs()
+    {
+        // Left Camera Info Message
+        left_info_msg_.header.frame_id = "camera_left_frame";
+        left_info_msg_.width = IMAGE_WIDTH;
+        left_info_msg_.height = IMAGE_HEIGHT;
 
-    //     left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
-    //                         K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
-    //                         K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
+        left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
+                            K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
+                            K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
 
-    //     left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
-    //     left_info_msg_.distortion_model = "plumb_bob";
-    //     left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
-    //                         R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
-    //                         R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
-    //     left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
-    //                         P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
-    //                         P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
+        left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
+        left_info_msg_.distortion_model = "plumb_bob";
+        left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
+                            R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
+                            R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
+        left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
+                            P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
+                            P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
 
-    //     // Right Camera Info Message
-    //     right_info_msg_.header.frame_id = "camera_right_frame";
-    //     right_info_msg_.width = IMAGE_WIDTH;
-    //     right_info_msg_.height = IMAGE_HEIGHT;
+        // Right Camera Info Message
+        right_info_msg_.header.frame_id = "camera_right_frame";
+        right_info_msg_.width = IMAGE_WIDTH;
+        right_info_msg_.height = IMAGE_HEIGHT;
 
-    //     right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
-    //                          K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
-    //                          K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
-    //     right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
-    //     right_info_msg_.distortion_model = "plumb_bob";
-    //     right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
-    //                          R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
-    //                          R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
-    //     right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
-    //                          P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
-    //                          P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
-    // }
+        right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
+                             K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
+                             K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
+        right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
+        right_info_msg_.distortion_model = "plumb_bob";
+        right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
+                             R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
+                             R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
+        right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
+                             P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
+                             P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
+    }
 
     void captureAndPublish()
     {
         captureAndPublishImages();
-        // publishCameraInfo();
+        publishCameraInfo();
         // captureAndPublishIMU();
     }
 
@@ -186,12 +186,12 @@ private:
         pub->publish(*img_msg);
     }
 
-    // void publishCameraInfo()
-    // {
-    //     RCLCPP_INFO(this->get_logger(), "Publishing camera info");
-    //     left_info_pub_->publish(left_info_msg_);
-    //     right_info_pub_->publish(right_info_msg_);
-    // }
+    void publishCameraInfo()
+    {
+        RCLCPP_INFO(this->get_logger(), "Publishing camera info");
+        left_info_pub_->publish(left_info_msg_);
+        right_info_pub_->publish(right_info_msg_);
+    }
 
     // Private members
     sl_oc::video::VideoCapture video_capture_;
@@ -199,13 +199,13 @@ private:
     cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
     cv::Mat M1l, M2l, M1r, M2r;
 
-    // sensor_msgs::msg::CameraInfo left_info_msg_;
-    // sensor_msgs::msg::CameraInfo right_info_msg_;
+    sensor_msgs::msg::CameraInfo left_info_msg_;
+    sensor_msgs::msg::CameraInfo right_info_msg_;
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr right_image_pub_;
-    // rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr left_info_pub_;
-    // rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr right_info_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr left_info_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr right_info_pub_;
     // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     rclcpp::TimerBase::SharedPtr timer_;
