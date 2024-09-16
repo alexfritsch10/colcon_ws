@@ -15,7 +15,7 @@ public:
     {
         // Initialize camera calibration parameters
         initializeCalibrationParams();
-        initializeCameraInfoMsgs();
+        // initializeCameraInfoMsgs();
 
         // Initialize publishers
         left_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/left/image_rect", 10);
