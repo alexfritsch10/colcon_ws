@@ -73,7 +73,7 @@ private:
 
         // LEFT and RIGHT projection matrices
         P_l = (cv::Mat_<double>(3, 4) << 351.553, 0, 332.793, 0, 0, 468.532, 242.539, 0, 0, 0, 1, 0);
-        P_r = (cv::Mat_<double>(3, 4) << 351.577, 0, 318.017, 120, 0, 468.509, 248.872, 0, 0, 0, 1, 0);
+        P_r = (cv::Mat_<double>(3, 4) << 351.577, 0, 318.017, -120, 0, 468.509, 248.872, 0, 0, 0, 1, 0);
 
         // Create rectification maps
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1l, M2l);
