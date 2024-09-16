@@ -80,43 +80,43 @@ private:
         cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1r, M2r);
     }
 
-    void initializeCameraInfoMsgs()
-    {
-        // Left Camera Info Message
-        left_info_msg_.header.frame_id = "camera_left_frame";
-        left_info_msg_.width = IMAGE_WIDTH;
-        left_info_msg_.height = IMAGE_HEIGHT;
+    // void initializeCameraInfoMsgs()
+    // {
+    //     // Left Camera Info Message
+    //     left_info_msg_.header.frame_id = "camera_left_frame";
+    //     left_info_msg_.width = IMAGE_WIDTH;
+    //     left_info_msg_.height = IMAGE_HEIGHT;
 
-        left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
-                            K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
-                            K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
+    //     left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
+    //                         K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
+    //                         K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
 
-        left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
-        left_info_msg_.distortion_model = "plumb_bob";
-        left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
-                            R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
-                            R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
-        left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
-                            P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
-                            P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
+    //     left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
+    //     left_info_msg_.distortion_model = "plumb_bob";
+    //     left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
+    //                         R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
+    //                         R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
+    //     left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
+    //                         P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
+    //                         P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
 
-        // Right Camera Info Message
-        right_info_msg_.header.frame_id = "camera_right_frame";
-        right_info_msg_.width = IMAGE_WIDTH;
-        right_info_msg_.height = IMAGE_HEIGHT;
+    //     // Right Camera Info Message
+    //     right_info_msg_.header.frame_id = "camera_right_frame";
+    //     right_info_msg_.width = IMAGE_WIDTH;
+    //     right_info_msg_.height = IMAGE_HEIGHT;
 
-        right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
-                             K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
-                             K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
-        right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
-        right_info_msg_.distortion_model = "plumb_bob";
-        right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
-                             R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
-                             R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
-        right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
-                             P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
-                             P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
-    }
+    //     right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
+    //                          K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
+    //                          K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
+    //     right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
+    //     right_info_msg_.distortion_model = "plumb_bob";
+    //     right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
+    //                          R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
+    //                          R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
+    //     right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
+    //                          P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
+    //                          P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
+    // }
 
     void captureAndPublish()
     {
@@ -125,24 +125,24 @@ private:
         // captureAndPublishIMU();
     }
 
-    void captureAndPublishIMU()
-    {
-        // Capture and publish IMU data
-        sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
-        auto imu_msg = sensor_msgs::msg::Imu();
-        imu_msg.header.stamp = this->now();
-        imu_msg.header.frame_id = "imu_frame";
-        imu_msg.linear_acceleration.x = imu_data.aX;
-        imu_msg.linear_acceleration.y = imu_data.aY;
-        imu_msg.linear_acceleration.z = imu_data.aZ;
-        imu_msg.angular_velocity.x = imu_data.gX;
-        imu_msg.angular_velocity.y = imu_data.gY;
-        imu_msg.angular_velocity.z = imu_data.gZ;
-        imu_pub_->publish(imu_msg);
+    // void captureAndPublishIMU()
+    // {
+    //     // Capture and publish IMU data
+    //     sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
+    //     auto imu_msg = sensor_msgs::msg::Imu();
+    //     imu_msg.header.stamp = this->now();
+    //     imu_msg.header.frame_id = "imu_frame";
+    //     imu_msg.linear_acceleration.x = imu_data.aX;
+    //     imu_msg.linear_acceleration.y = imu_data.aY;
+    //     imu_msg.linear_acceleration.z = imu_data.aZ;
+    //     imu_msg.angular_velocity.x = imu_data.gX;
+    //     imu_msg.angular_velocity.y = imu_data.gY;
+    //     imu_msg.angular_velocity.z = imu_data.gZ;
+    //     imu_pub_->publish(imu_msg);
 
-        RCLCPP_INFO(this->get_logger(), "IMU data: aX=%f, aY=%f, aZ=%f, gX=%f, gY=%f, gZ=%f",
-                    imu_data.aX, imu_data.aY, imu_data.aZ, imu_data.gX, imu_data.gY, imu_data.gZ);
-    }
+    //     RCLCPP_INFO(this->get_logger(), "IMU data: aX=%f, aY=%f, aZ=%f, gX=%f, gY=%f, gZ=%f",
+    //                 imu_data.aX, imu_data.aY, imu_data.aZ, imu_data.gX, imu_data.gY, imu_data.gZ);
+    // }
 
     void captureAndPublishImages()
     {
@@ -186,12 +186,12 @@ private:
         pub->publish(*img_msg);
     }
 
-    void publishCameraInfo()
-    {
-        RCLCPP_INFO(this->get_logger(), "Publishing camera info");
-        left_info_pub_->publish(left_info_msg_);
-        right_info_pub_->publish(right_info_msg_);
-    }
+    // void publishCameraInfo()
+    // {
+    //     RCLCPP_INFO(this->get_logger(), "Publishing camera info");
+    //     left_info_pub_->publish(left_info_msg_);
+    //     right_info_pub_->publish(right_info_msg_);
+    // }
 
     // Private members
     sl_oc::video::VideoCapture video_capture_;
