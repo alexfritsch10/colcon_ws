@@ -14,17 +14,14 @@ def generate_launch_description():
         
         # RTAB-Map node
         Node(
-            package='rtabmap_slam',
-            executable='rtabmap',
+            package='rtabmap_odom',
+            executable='stereo_odometry',
             name='rtabmap',
             output='screen',
             parameters=[{
                 'frame_id': 'base_link',
-                'stereo': True,
-                'left_image_topic': '/camera/left/image_rect',
-                'right_image_topic': '/camera/right/image_rect',
-                'imu_topic': '/imu',
                 'wait_imu_to_init': True,
+                'approx_sync': True,
                 'rtabmap_args': '--delete_db_on_start --Vis/CorFlowMaxLevel 5 --Stereo/MaxDisparity 200',
             }],
         ),
