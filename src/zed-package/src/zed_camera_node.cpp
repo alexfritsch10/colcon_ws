@@ -20,9 +20,9 @@ public:
         // Initialize publishers
         left_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/left/image_rect", 10);
         right_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/right/image_rect", 10);
-        left_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/left/camera_info", 10);
-        right_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/right/camera_info", 10);
-        imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
+        // left_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/left/camera_info", 10);
+        // right_info_pub_ = this->create_publisher<sensor_msgs::msg::CameraInfo>("/right/camera_info", 10);
+        // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
         // Initialize the camera
         if (!video_capture_.initializeVideo())
@@ -32,20 +32,20 @@ public:
         }
 
         // Initialize sensor capture
-        std::vector<int> devs = sensor_capture_.getDeviceList();
-        if (!devs.empty())
-        {
-            if (!sensor_capture_.initializeSensors(devs[0]))
-            {
-                RCLCPP_INFO(this->get_logger(), "Failed to initialize sensor capture");
-                return;
-            }
-        }
-        else
-        {
-            RCLCPP_INFO(this->get_logger(), "No devices found for sensor capture");
-            return;
-        }
+        // std::vector<int> devs = sensor_capture_.getDeviceList();
+        // if (!devs.empty())
+        // {
+        //     if (!sensor_capture_.initializeSensors(devs[0]))
+        //     {
+        //         RCLCPP_INFO(this->get_logger(), "Failed to initialize sensor capture");
+        //         return;
+        //     }
+        // }
+        // else
+        // {
+        //     RCLCPP_INFO(this->get_logger(), "No devices found for sensor capture");
+        //     return;
+        // }
 
         // Create a timer to capture and publish data at 10Hz
         timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublish, this));
@@ -120,9 +120,9 @@ private:
 
     void captureAndPublish()
     {
-        captureAndPublishIMU();
         captureAndPublishImages();
-        publishCameraInfo();
+        // publishCameraInfo();
+        // captureAndPublishIMU();
     }
 
     void captureAndPublishIMU()
@@ -195,18 +195,18 @@ private:
 
     // Private members
     sl_oc::video::VideoCapture video_capture_;
-    sl_oc::sensors::SensorCapture sensor_capture_;
+    // sl_oc::sensors::SensorCapture sensor_capture_;
     cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
     cv::Mat M1l, M2l, M1r, M2r;
 
-    sensor_msgs::msg::CameraInfo left_info_msg_;
-    sensor_msgs::msg::CameraInfo right_info_msg_;
+    // sensor_msgs::msg::CameraInfo left_info_msg_;
+    // sensor_msgs::msg::CameraInfo right_info_msg_;
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr right_image_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr left_info_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr right_info_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+    // rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr left_info_pub_;
+    // rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr right_info_pub_;
+    // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     rclcpp::TimerBase::SharedPtr timer_;
 };
