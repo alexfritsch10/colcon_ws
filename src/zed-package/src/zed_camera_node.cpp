@@ -170,13 +170,13 @@ private:
             cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
 
             // Rectify the images
-            // cv::Mat left_rectified, right_rectified;
-            // cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            // cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::Mat left_rectified, right_rectified;
+            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
-            publishImage(left_resized, left_image_pub_, time);
-            publishImage(right_resized, right_image_pub_, time);
+            publishImage(left_rectified, left_image_pub_, time);
+            publishImage(right_rectified, right_image_pub_, time);
         }
         else
         {
