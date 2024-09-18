@@ -19,7 +19,7 @@ def generate_launch_description():
             name='rtabmap',
             output='screen',
             parameters=[{
-                'rtabmap_args': '--delete_db_on_start --Vis/CorFlowMaxLevel 5 --Stereo/MaxDisparity 250 --Stereo/FlowMaxLevel 5',
+                'rtabmap_args': '--delete_db_on_start --Vis/CorFlowMaxLevel 5 --Stereo/MaxDisparity 250 --Stereo/FlowMaxLevel 5 --Vis/MinInliers 10',
                 'frame_id': 'base_link',
                 'approx_sync': True,
                 'approx_sync_max_interval': 0.01,
