@@ -156,6 +156,8 @@ private:
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
 
+        RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
+
         if (frame.data != nullptr && frame.width > 0 && frame.height > 0)
         {
             // Convert and split the stereo image
