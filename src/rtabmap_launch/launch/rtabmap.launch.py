@@ -9,7 +9,7 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='static_transform_pub',
             output='screen',
-            arguments=['0', '0', '0', '-1.5708', '0', '-1.5708', 'base_link', 'camera_link'],
+            arguments=['0', '0', '0', '-1.5708', '0', '-1.5708', 'camera_link', 'base_link'],
         ),
         
         # RTAB-Map node
