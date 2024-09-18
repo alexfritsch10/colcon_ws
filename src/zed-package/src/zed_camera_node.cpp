@@ -57,12 +57,22 @@ private:
 
     void initializeCalibrationParams()
     {
-        // LEFT camera intrinsic matrix (K)
-        K_l = (cv::Mat_<double>(3, 3) << 351.553, 0, 332.793, 0, 468.532, 242.539, 0, 0, 1);
+        // LEFT and RIGHT camera intrinsic matrices (K)
+        K_l = (cv::Mat_<double>(3, 3) << 1054, 0, 1000, 0, 1054, 545, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 1054, 0, 954, 0, 1054, 559, 0, 0, 1);
 
-        // RIGHT camera intrinsic matrix (K)
-        K_r = (cv::Mat_<double>(3, 3) << 351.577, 0, 318.017, 0, 468.509, 248.872, 0, 0, 1);
+        // LEFT and RIGHT projection matrices (P)
+        // Initialize projection matrices with zeros
+        P_l = cv::Mat::zeros(3, 4, CV_64F);
+        P_r = cv::Mat::zeros(3, 4, CV_64F);
 
+        // Copy the intrinsic matrices (K_l, K_r) into the top-left 3x3 part of P_l and P_r
+        K_l.copyTo(P_l(cv::Rect(0, 0, 3, 3))); // Copy K_l into P_l
+        K_r.copyTo(P_r(cv::Rect(0, 0, 3, 3))); // Copy K_r into P_r
+
+        // Set the translation component (P_r only, since P_l doesn't have translation)
+        P_r.at<double>(0, 3) = -120.3; // Tx value (baseline in mm, negative because it's the right camera)
+        
         // LEFT and RIGHT rectification matrices
         R_l = cv::Mat::eye(3, 3, CV_64F); // Identity matrix
         R_r = cv::Mat::eye(3, 3, CV_64F);
@@ -70,10 +80,6 @@ private:
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
         D_r = (cv::Mat_<double>(1, 5) << -0.0414, 0.0094, 0.0001, 0.0001, -0.0046);
-
-        // LEFT and RIGHT projection matrices
-        P_l = (cv::Mat_<double>(3, 4) << 351.553, 0, 332.793, 0, 0, 468.532, 242.539, 0, 0, 0, 1, 0);
-        P_r = (cv::Mat_<double>(3, 4) << 351.577, 0, 318.017, -120, 0, 468.509, 248.872, 0, 0, 0, 1, 0);
 
         // Create rectification maps
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1l, M2l);
