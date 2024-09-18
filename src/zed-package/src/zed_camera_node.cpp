@@ -47,13 +47,13 @@ public:
         //     return;
         // }
 
-        // Create a timer to capture and publish data at 40Hz
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(25), std::bind(&ZedCameraNode::captureAndPublish, this));
+        // Create a timer to capture and publish data at 4Hz
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(250), std::bind(&ZedCameraNode::captureAndPublish, this));
     }
 
 private:
-    const int IMAGE_WIDTH = 1920;
-    const int IMAGE_HEIGHT = 1080;
+    const int IMAGE_WIDTH = 2208;
+    const int IMAGE_HEIGHT = 1242;
 
     void initializeCalibrationParams()
     {
@@ -167,14 +167,14 @@ private:
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
 
             // Resize the images
-            cv::Mat left_resized, right_resized;
-            cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-            cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+            // cv::Mat left_resized, right_resized;
+            // cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+            // cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
 
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
             publishImage(left_rectified, left_image_pub_, time);
