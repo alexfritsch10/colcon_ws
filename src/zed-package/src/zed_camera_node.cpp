@@ -52,8 +52,8 @@ public:
     }
 
 private:
-    const int IMAGE_WIDTH = 2208;
-    const int IMAGE_HEIGHT = 1242;
+    const int IMAGE_WIDTH = 1920;
+    const int IMAGE_HEIGHT = 1080;
 
     void initializeCalibrationParams()
     {
@@ -61,29 +61,29 @@ private:
         K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 998.38, 0, 1054.35, 545.69, 0, 0, 1);
         K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 954.05, 0, 1054.3, 559.621, 0, 0, 1);
 
-        // LEFT and RIGHT projection matrices (P)
-        // Initialize projection matrices with zeros
-        P_l = cv::Mat::zeros(3, 4, CV_64F);
-        P_r = cv::Mat::zeros(3, 4, CV_64F);
-
-        // Copy the intrinsic matrices (K_l, K_r) into the top-left 3x3 part of P_l and P_r
-        K_l.copyTo(P_l(cv::Rect(0, 0, 3, 3))); // Copy K_l into P_l
-        K_r.copyTo(P_r(cv::Rect(0, 0, 3, 3))); // Copy K_r into P_r
-
-        // Set the translation component (P_r only, since P_l doesn't have translation)
-        P_r.at<double>(0, 3) = -120.312; // Tx value (baseline in mm, negative because it's the right camera)
-
-        // LEFT and RIGHT rectification matrices
-        R_l = cv::Mat::eye(3, 3, CV_64F); // Identity matrix
-        R_r = cv::Mat::eye(3, 3, CV_64F);
-
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
         D_r = (cv::Mat_<double>(1, 5) << -0.0414, 0.0094, 0.0001, 0.0001, -0.0046);
 
-        // Create rectification maps
-        cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1l, M2l);
-        cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r(cv::Range(0, 3), cv::Range(0, 3)), cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT), CV_32F, M1r, M2r);
+        // Rotation and translation between the cameras
+        cv::Mat R;
+        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
+        cv::Rodrigues(rvec, R);                                              // Convert the rotation vector into a 3x3 rotation matrix
+
+        cv::Mat T = (cv::Mat_<double>(3, 1) << -120.312, 0.018, -0.7697); // Translation vector (Tx, Ty, Tz)
+
+        // Image size (width and height)
+        cv::Size imageSize(IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        // Output rectification matrices, projection matrices, and Q matrix (for disparity to depth)
+        cv::Mat R_l, R_r, P_l, P_r, Q;
+
+        // Compute rectification transforms
+        cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
+
+        // Create rectification maps for left and right images
+        cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l, imageSize, CV_32F, M1l, M2l);
+        cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r, imageSize, CV_32F, M1r, M2r);
     }
 
     void initializeCameraInfoMsgs()
@@ -167,14 +167,14 @@ private:
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
 
             // Resize the images
-            // cv::Mat left_resized, right_resized;
-            // cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-            // cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+            cv::Mat left_resized, right_resized;
+            cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+            cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
 
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
             publishImage(left_rectified, left_image_pub_, time);
