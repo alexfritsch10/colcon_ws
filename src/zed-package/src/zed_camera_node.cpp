@@ -52,14 +52,14 @@ public:
     }
 
 private:
-    const int IMAGE_WIDTH = 1280;
-    const int IMAGE_HEIGHT = 720;
+    const int IMAGE_WIDTH = 1920;
+    const int IMAGE_HEIGHT = 1080;
 
     void initializeCalibrationParams()
     {
         // LEFT and RIGHT camera intrinsic matrices (K)
-        K_l = (cv::Mat_<double>(3, 3) << 1054, 0, 1000, 0, 1054, 545, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 1054, 0, 954, 0, 1054, 559, 0, 0, 1);
+        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 998.38, 0, 1054.35, 545.69, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 954.05, 0, 1054.3, 559.621, 0, 0, 1);
 
         // LEFT and RIGHT projection matrices (P)
         // Initialize projection matrices with zeros
@@ -71,7 +71,7 @@ private:
         K_r.copyTo(P_r(cv::Rect(0, 0, 3, 3))); // Copy K_r into P_r
 
         // Set the translation component (P_r only, since P_l doesn't have translation)
-        P_r.at<double>(0, 3) = -120.3; // Tx value (baseline in mm, negative because it's the right camera)
+        P_r.at<double>(0, 3) = -120.312; // Tx value (baseline in mm, negative because it's the right camera)
 
         // LEFT and RIGHT rectification matrices
         R_l = cv::Mat::eye(3, 3, CV_64F); // Identity matrix
