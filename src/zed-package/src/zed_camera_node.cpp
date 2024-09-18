@@ -52,8 +52,8 @@ public:
     }
 
 private:
-    const int IMAGE_WIDTH = 640;
-    const int IMAGE_HEIGHT = 480;
+    const int IMAGE_WIDTH = 1280;
+    const int IMAGE_HEIGHT = 720;
 
     void initializeCalibrationParams()
     {
