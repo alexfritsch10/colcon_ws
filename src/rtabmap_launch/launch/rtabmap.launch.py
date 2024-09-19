@@ -11,6 +11,14 @@ def generate_launch_description():
             output='screen',
             arguments=['0', '0', '0', '-1.5708', '0', '-1.5708', 'base_link', 'camera_link'],
         ),
+
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_transform_pub2',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_link'],
+        ),
         
         # RTAB-Map node
         Node(
