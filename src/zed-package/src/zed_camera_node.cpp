@@ -47,19 +47,19 @@ public:
         //     return;
         // }
 
-        // Create a timer to capture and publish data at 4Hz
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(250), std::bind(&ZedCameraNode::captureAndPublish, this));
+        // Create a timer to capture and publish data at 10Hz
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublish, this));
     }
 
 private:
-    const int IMAGE_WIDTH = 1920;
-    const int IMAGE_HEIGHT = 1080;
+    const int IMAGE_WIDTH = 1280;
+    const int IMAGE_HEIGHT = 720;
 
     void initializeCalibrationParams()
     {
         // LEFT and RIGHT camera intrinsic matrices (K)
-        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 998.38, 0, 1054.35, 545.69, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 954.05, 0, 1054.3, 559.621, 0, 0, 1);
+        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 657.69, 0, 1054.35, 361.345, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 635.525, 0, 1054.3, 368.3105, 0, 0, 1);
 
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
@@ -75,9 +75,6 @@ private:
         // Image size (width and height)
         cv::Size imageSize(IMAGE_WIDTH, IMAGE_HEIGHT);
 
-        // Output rectification matrices, projection matrices, and Q matrix (for disparity to depth)
-        cv::Mat R_l, R_r, P_l, P_r, Q;
-
         // Compute rectification transforms
         cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
 
@@ -86,49 +83,46 @@ private:
         cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r, imageSize, CV_32F, M1r, M2r);
     }
 
-    // void initializeCameraInfoMsgs()
-    // {
-    //     // Left Camera Info Message
-    //     left_info_msg_.header.frame_id = "camera_link";
-    //     left_info_msg_.width = IMAGE_WIDTH;
-    //     left_info_msg_.height = IMAGE_HEIGHT;
+    void initializeCameraInfoMsgs()
+    {
+        // Left Camera Info Message (https://docs.ros.org/en/api/sensor_msgs/html/msg/CameraInfo.html)
+        left_info_msg_.header.frame_id = "camera_link";
+        left_info_msg_.width = IMAGE_WIDTH;
+        left_info_msg_.height = IMAGE_HEIGHT;
+        left_info_msg_.distortion_model = "plumb_bob";
+        left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
+        left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
+                            K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
+                            K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
+        left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
+                            R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
+                            R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
+        left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
+                            P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
+                            P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
 
-    //     left_info_msg_.k = {K_l.at<double>(0, 0), K_l.at<double>(0, 1), K_l.at<double>(0, 2),
-    //                         K_l.at<double>(1, 0), K_l.at<double>(1, 1), K_l.at<double>(1, 2),
-    //                         K_l.at<double>(2, 0), K_l.at<double>(2, 1), K_l.at<double>(2, 2)};
-
-    //     left_info_msg_.d = {D_l.at<double>(0, 0), D_l.at<double>(0, 1), D_l.at<double>(0, 2), D_l.at<double>(0, 3), D_l.at<double>(0, 4)};
-    //     left_info_msg_.distortion_model = "plumb_bob";
-    //     left_info_msg_.r = {R_l.at<double>(0, 0), R_l.at<double>(0, 1), R_l.at<double>(0, 2),
-    //                         R_l.at<double>(1, 0), R_l.at<double>(1, 1), R_l.at<double>(1, 2),
-    //                         R_l.at<double>(2, 0), R_l.at<double>(2, 1), R_l.at<double>(2, 2)};
-    //     left_info_msg_.p = {P_l.at<double>(0, 0), P_l.at<double>(0, 1), P_l.at<double>(0, 2), P_l.at<double>(0, 3),
-    //                         P_l.at<double>(1, 0), P_l.at<double>(1, 1), P_l.at<double>(1, 2), P_l.at<double>(1, 3),
-    //                         P_l.at<double>(2, 0), P_l.at<double>(2, 1), P_l.at<double>(2, 2), P_l.at<double>(2, 3)};
-
-    //     // Right Camera Info Message
-    //     right_info_msg_.header.frame_id = "camera_link";
-    //     right_info_msg_.width = IMAGE_WIDTH;
-    //     right_info_msg_.height = IMAGE_HEIGHT;
-
-    //     right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
-    //                          K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
-    //                          K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
-    //     right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
-    //     right_info_msg_.distortion_model = "plumb_bob";
-    //     right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
-    //                          R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
-    //                          R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
-    //     right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
-    //                          P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
-    //                          P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
-    // }
+        // Right Camera Info Message
+        right_info_msg_.header.frame_id = "camera_link";
+        right_info_msg_.width = IMAGE_WIDTH;
+        right_info_msg_.height = IMAGE_HEIGHT;
+        right_info_msg_.distortion_model = "plumb_bob";
+        right_info_msg_.d = {D_r.at<double>(0, 0), D_r.at<double>(0, 1), D_r.at<double>(0, 2), D_r.at<double>(0, 3), D_r.at<double>(0, 4)};
+        right_info_msg_.k = {K_r.at<double>(0, 0), K_r.at<double>(0, 1), K_r.at<double>(0, 2),
+                             K_r.at<double>(1, 0), K_r.at<double>(1, 1), K_r.at<double>(1, 2),
+                             K_r.at<double>(2, 0), K_r.at<double>(2, 1), K_r.at<double>(2, 2)};
+        right_info_msg_.r = {R_r.at<double>(0, 0), R_r.at<double>(0, 1), R_r.at<double>(0, 2),
+                             R_r.at<double>(1, 0), R_r.at<double>(1, 1), R_r.at<double>(1, 2),
+                             R_r.at<double>(2, 0), R_r.at<double>(2, 1), R_r.at<double>(2, 2)};
+        right_info_msg_.p = {P_r.at<double>(0, 0), P_r.at<double>(0, 1), P_r.at<double>(0, 2), P_r.at<double>(0, 3),
+                             P_r.at<double>(1, 0), P_r.at<double>(1, 1), P_r.at<double>(1, 2), P_r.at<double>(1, 3),
+                             P_r.at<double>(2, 0), P_r.at<double>(2, 1), P_r.at<double>(2, 2), P_r.at<double>(2, 3)};
+    }
 
     void captureAndPublish()
     {
         auto time = this->now();
         captureAndPublishImages(time);
-        // publishCameraInfo(time);
+        publishCameraInfo(time);
         // captureAndPublishIMU();
     }
 
@@ -195,19 +189,22 @@ private:
         pub->publish(*img_msg);
     }
 
-    // void publishCameraInfo(rclcpp::Time time)
-    // {
-    //     RCLCPP_INFO(this->get_logger(), "Publishing camera info");
-    //     left_info_msg_.header.stamp = time;
-    //     right_info_msg_.header.stamp = time;
-    //     left_info_pub_->publish(left_info_msg_);
-    //     right_info_pub_->publish(right_info_msg_);
-    // }
+    void publishCameraInfo(rclcpp::Time time)
+    {
+        RCLCPP_INFO(this->get_logger(), "Publishing camera info");
+        left_info_msg_.header.stamp = time;
+        right_info_msg_.header.stamp = time;
+        left_info_pub_->publish(left_info_msg_);
+        right_info_pub_->publish(right_info_msg_);
+    }
 
     // Private members
     sl_oc::video::VideoCapture video_capture_;
     // sl_oc::sensors::SensorCapture sensor_capture_;
     cv::Mat K_l, K_r, D_l, D_r;
+    // Output rectification matrices, projection matrices, and Q matrix (for disparity to depth)
+    cv::Mat R_l, R_r, P_l, P_r, Q;
+    // Rectification maps
     cv::Mat M1l, M2l, M1r, M2r;
 
     sensor_msgs::msg::CameraInfo left_info_msg_;
