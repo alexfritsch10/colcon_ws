@@ -47,8 +47,8 @@ public:
         //     return;
         // }
 
-        // Create a timer to capture and publish data at 10Hz
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublish, this));
+        // Create a timer to capture and publish data at 2Hz
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&ZedCameraNode::captureAndPublish, this));
     }
 
 private:
