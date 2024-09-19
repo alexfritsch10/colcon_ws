@@ -52,14 +52,14 @@ public:
     }
 
 private:
-    const int IMAGE_WIDTH = 672;
-    const int IMAGE_HEIGHT = 376;
+    const int IMAGE_WIDTH = 1280;
+    const int IMAGE_HEIGHT = 720;
 
     void initializeCalibrationParams()
     {
         // LEFT and RIGHT camera intrinsic matrices (K)
-        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 344.345, 0, 1054.35, 188.1725, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 333.2625, 0, 1054.3, 191.6552, 0, 0, 1);
+        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 657.69, 0, 1054.35, 361.345, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 635.525, 0, 1054.3, 368.3105, 0, 0, 1);
 
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
