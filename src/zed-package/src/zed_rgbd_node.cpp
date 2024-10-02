@@ -141,7 +141,7 @@ private:
             cv::Mat left_depth_map;
             double num = static_cast<double>(1054.66 * -0.120312);
             cv::divide(num, left_disp_float, left_depth_map);
-            float central_depth = left_depth_map.getMat(cv::ACCESS_READ).at<float>(left_depth_map.rows/2, left_depth_map.cols/2 );
+            float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
             cv::minMaxLoc(left_depth_map, &minVal, &maxVal);
