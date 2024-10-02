@@ -132,6 +132,7 @@ private:
             // ----> Normalize disparity
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
+            cv::add(left_disp_float, -static_cast<double>(stereoPar.minDisparity - 1), left_disp_float); // Shift disparity
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
@@ -150,7 +151,7 @@ private:
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(depth_visual, rgb_image_pub_right, time);
+            publishImage(depth_visual, rgb_image_pub_right, time, "mono8");
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
