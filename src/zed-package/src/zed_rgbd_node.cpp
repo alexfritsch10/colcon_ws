@@ -109,7 +109,7 @@ private:
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
             cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_AREA);
-            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_AREA);
+            cv::remap(right_resized, right_rectifiedcp - r colcon_ws / src / zed - package / root / colcon_ws / src cp - r colcon_ws / src / zed - package / root / colcon_ws / src, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM)
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16, 3);
@@ -133,15 +133,24 @@ private:
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
 
+            double minVal, maxVal;
+            cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
+            std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
+
             // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
             double num = static_cast<double>(1054.66 * -0.120312);
             cv::divide(num, left_disp_float, left_depth_map);
-            //cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true, CV_32F);
+
+            cv::minMaxLoc(left_depth_map, &minVal, &maxVal);
+            std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
+
+            cv::Mat depth_visual;
+            left_depth_map.convertTo(depth_visual, CV_8UC1, 255.0 / maxVal);
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(right_rectified, rgb_image_pub_right, time);
+            publishImage(depth_visual, rgb_image_pub_right, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
