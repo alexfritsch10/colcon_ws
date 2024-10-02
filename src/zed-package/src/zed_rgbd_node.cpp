@@ -132,7 +132,6 @@ private:
             // ----> Normalize disparity
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
-            cv::add(left_disp_float, 1.0, left_disp_float); // Shift disparity
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
@@ -142,6 +141,8 @@ private:
             cv::Mat left_depth_map;
             double num = static_cast<double>(1054.66 * -0.120312);
             cv::divide(num, left_disp_float, left_depth_map);
+            float central_depth = left_depth_map.getMat(cv::ACCESS_READ).at<float>(left_depth_map.rows/2, left_depth_map.cols/2 );
+            std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
             cv::minMaxLoc(left_depth_map, &minVal, &maxVal);
             std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
