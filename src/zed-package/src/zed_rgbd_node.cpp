@@ -115,8 +115,8 @@ private:
             left_matcher->setMinDisparity(0);
             left_matcher->setNumDisparities(16);
             left_matcher->setBlockSize(3);
-            left_matcher->setP1(8 * 3 * 3);
-            left_matcher->setP2(32 * 3 * 3);
+            .left_matcher->setP1(8 * 3 * 9);
+            left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(1);
             left_matcher->setMode(cv::StereoSGBM::MODE_SGBM);
             left_matcher->setPreFilterCap(63);
@@ -132,12 +132,15 @@ private:
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
 
-            // ----> Calculate depth map from disparity
+            // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
-            cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true, CV_32F);
+            double num = static_cast<double>(1054.66 * -0.120312);
+            cv::divide(num, left_disp_float, left_depth_map);
+            //cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true, CV_32F);
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
+            publishImage(right_rectified, rgb_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
