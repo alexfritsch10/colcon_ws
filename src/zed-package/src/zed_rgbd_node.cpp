@@ -132,7 +132,7 @@ private:
             // ----> Normalize disparity
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
-            cv::add(left_disp_float, -static_cast<double>(stereoPar.minDisparity - 1), left_disp_float); // Shift disparity
+            cv::add(left_disp_float, 1.0, left_disp_float); // Shift disparity
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
