@@ -17,7 +17,7 @@ public:
         initializeCalibrationParams();
 
         // Initialize publishers adjusted to ORB SLAM 3
-        rbg_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw", 10);
+        rgb_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw", 10);
         depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/depth/image_raw", 10);
         // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
@@ -89,9 +89,7 @@ private:
     void captureAndPublishImages(rclcpp::Time time)
     {
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
-        sl_oc::video::VideoParams params;
-        params.res = sl_oc::video::RESOLUTION::HD720;
-        const sl_oc::video::Frame frame = video_capture_.getLastFrame(params);
+        const sl_oc::video::Frame frame = video_capture_.getLastFrame();
 
         RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
 
@@ -103,10 +101,14 @@ private:
             left_raw = frameBGR(cv::Rect(0, 0, frameBGR.cols / 2, frameBGR.rows));
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
 
+            cv::Mat left_resized, right_resized;
+            cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+            cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
+
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_AREA);
-            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_AREA);
+            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_AREA);
+            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM)
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16, 3);
@@ -135,7 +137,7 @@ private:
             cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true, CV_32F);
 
             // Publish the rectified images
-            publishImage(left_rectified, rbg_image_pub_, time);
+            publishImage(left_rectified, rgb_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
