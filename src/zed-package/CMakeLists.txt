@@ -38,12 +38,12 @@ include_directories(
 
 link_directories(/root/zed-open-capture/build)
 
-# Add the executable target for your node
-add_executable(${PROJECT_NAME}_node src/zed_camera_node.cpp)
+# Stereo Node ---------------------->
+add_executable(${PROJECT_NAME}_stereo_node src/zed_stereo_node.cpp)
 
-ament_target_dependencies(${PROJECT_NAME}_node rclcpp sensor_msgs image_transport cv_bridge OpenCV)
+ament_target_dependencies(${PROJECT_NAME}_stereo_node rclcpp sensor_msgs image_transport cv_bridge OpenCV)
 # Link the executable with the necessary libraries
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(${PROJECT_NAME}_stereo_node
   zed_open_capture  # Link against the zed_open_capture library
   ${OpenCV_LIBS}    # Link against OpenCV libraries, if applicable
 )
@@ -51,7 +51,23 @@ target_link_libraries(${PROJECT_NAME}_node
 add_definitions(-DSENSORS_MOD_AVAILABLE)
 add_definitions(-DVIDEO_MOD_AVAILABLE)
 
-install(TARGETS ${PROJECT_NAME}_node
+install(TARGETS ${PROJECT_NAME}_stereo_node
+  DESTINATION lib/${PROJECT_NAME})
+
+# RGB Node ---------------------->
+  add_executable(${PROJECT_NAME}_rgbd_node src/zed_rgbd_node.cpp)
+
+ament_target_dependencies(${PROJECT_NAME}_rgbd_node rclcpp sensor_msgs image_transport cv_bridge OpenCV)
+# Link the executable with the necessary libraries
+target_link_libraries(${PROJECT_NAME}_rgbd_node
+  zed_open_capture  # Link against the zed_open_capture library
+  ${OpenCV_LIBS}    # Link against OpenCV libraries, if applicable
+)
+
+add_definitions(-DSENSORS_MOD_AVAILABLE)
+add_definitions(-DVIDEO_MOD_AVAILABLE)
+
+install(TARGETS ${PROJECT_NAME}_rgbd_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Ament package
