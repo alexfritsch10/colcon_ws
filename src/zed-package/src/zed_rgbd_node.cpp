@@ -115,7 +115,7 @@ private:
             left_matcher->setMinDisparity(0);
             left_matcher->setNumDisparities(16);
             left_matcher->setBlockSize(3);
-            .left_matcher->setP1(8 * 3 * 9);
+            left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(1);
             left_matcher->setMode(cv::StereoSGBM::MODE_SGBM);
