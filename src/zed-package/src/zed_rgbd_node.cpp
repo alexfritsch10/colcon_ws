@@ -109,7 +109,7 @@ private:
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
             cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_AREA);
-            cv::remap(right_resized, right_rectifiedcp - r colcon_ws / src / zed - package / root / colcon_ws / src cp - r colcon_ws / src / zed - package / root / colcon_ws / src, M1r, M2r, cv::INTER_AREA);
+            cv::remap(right_resized, right_rectifiedc, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM)
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16, 3);
