@@ -18,6 +18,7 @@ public:
 
         // Initialize publishers adjusted to ORB SLAM 3
         rgb_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw", 10);
+        rgb_image_pub_right = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw/right", 10);
         depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/depth/image_raw", 10);
         // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
@@ -140,7 +141,7 @@ private:
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(right_rectified, rgb_image_pub_, time);
+            publishImage(right_rectified, rgb_image_pub_right, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
@@ -170,6 +171,7 @@ private:
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_image_pub_right;
     // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     rclcpp::TimerBase::SharedPtr timer_;
