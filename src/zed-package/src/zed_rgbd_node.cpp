@@ -111,8 +111,8 @@ private:
             cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_AREA);
             cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_AREA);
 
-            // ----> Stereo matching using Semi-Global Block Matching (SGBM)
-            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16, 3);
+            // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
+            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create();
             left_matcher->setMinDisparity(0);
             left_matcher->setNumDisparities(16);
             left_matcher->setBlockSize(3);
@@ -126,10 +126,13 @@ private:
             left_matcher->setSpeckleRange(32);
 
             // ----> Compute disparity map
-            cv::Mat left_disp, left_disp_float;
-            left_matcher->compute(left_rectified, right_rectified, left_disp);
+            cv::Mat left_gray, right_gray, left_disp;
+            cv::cvtColor(left_rectified, left_gray, cv::COLOR_BGR2GRAY);
+            cv::cvtColor(right_rectified, right_gray, cv::COLOR_BGR2GRAY);
+            left_matcher->compute(left_gray, right_gray, left_disp);
 
             // ----> Normalize disparity
+            cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
 
