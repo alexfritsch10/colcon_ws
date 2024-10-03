@@ -116,10 +116,10 @@ private:
             cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
-            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create();
+            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 4, 3);
             left_matcher->setMinDisparity(0);
-            left_matcher->setNumDisparities(4 * 16);
-            left_matcher->setBlockSize(7);
+            left_matcher->setNumDisparities(16 * 4);
+            left_matcher->setBlockSize(3);
             left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(1);
@@ -137,9 +137,7 @@ private:
 
             // ----> Normalize disparity
             cv::Mat left_disp_float;
-            left_disp.convertTo(left_disp_float, CV_32FC1);
-            cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.
-            //cv::add(left_disp_float, 0.25, left_disp_float);            // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
+            left_disp.convertTo(left_disp_float, CV_32F, 1.0 / 16.0); // Scale disparity to [0, 1]
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
@@ -157,9 +155,10 @@ private:
             std::cout << std::endl;
 
             // ----> Calculate depth map from disparity.
+            double fx = 527.33;        // Focal length for the left camera
+            double baseline = 120.312; // Baseline in mm
             cv::Mat left_depth_map;
-            double num = 527.33 * (-120.312);
-            cv::divide(num, left_disp_float, left_depth_map);
+            cv::divide(fx * baseline, left_disp_float, left_depth_map);
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
