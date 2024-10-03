@@ -159,6 +159,17 @@ private:
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
             std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
 
+            // Display ten random values of left_disp_float
+            std::cout << "Ten random disparity values: ";
+            for (int i = 0; i < 10; ++i)
+            {
+                int rand_row = rand() % left_disp_float.rows;
+                int rand_col = rand() % left_disp_float.cols;
+                float random_value = left_disp_float.at<float>(rand_row, rand_col);
+                std::cout << random_value << " ";
+            }
+            std::cout << std::endl;
+
             // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
             double num = 1054.66 * 120.312;
