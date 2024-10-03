@@ -59,20 +59,20 @@ private:
 
     void initializeCalibrationParams()
     {
-        // LEFT and RIGHT camera intrinsic matrices (K)
-        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 657.69, 0, 1054.35, 361.345, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 635.525, 0, 1054.3, 368.3105, 0, 0, 1);
+        // LEFT and RIGHT camera intrinsic matrices (K) for !!720p resolution!!
+        K_l = (cv::Mat_<double>(3, 3) << 527.33, 0, 657.69, 0, 527.175, 361.345, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 527.365, 0, 635.525, 0, 527.15, 368.3105, 0, 0, 1);
 
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
-        D_r = (cv::Mat_<double>(1, 5) << -0.0414, 0.0094, 0.0001, 0.0001, -0.0046);
+        D_r = (cv::Mat_<double>(1, 5) << -0.0414, 0.0094, 0.0001, 0.0002, -0.0046);
 
         // Rotation and translation between the cameras
         cv::Mat R;
         cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
         cv::Rodrigues(rvec, R);                                              // Convert the rotation vector into a 3x3 rotation matrix
 
-        cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector in meters (Tx, Ty, Tz)
+        cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
 
         // Image size (width and height)
         cv::Size imageSize(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -158,7 +158,7 @@ private:
 
             // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
-            double num = 1054.66 * 120.312;
+            double num = 527.33 * 120.312;
             cv::divide(num, left_disp_float, left_depth_map);
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
