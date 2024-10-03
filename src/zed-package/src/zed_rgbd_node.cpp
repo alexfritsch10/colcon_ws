@@ -5,6 +5,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include "videocapture.hpp"
 #include "sensorcapture.hpp"
+#include "tools.hpp"
 #include <opencv2/opencv.hpp>
 
 class ZedCameraNode : public rclcpp::Node
