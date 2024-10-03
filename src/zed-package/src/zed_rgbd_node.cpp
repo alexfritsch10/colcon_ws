@@ -114,8 +114,8 @@ private:
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create();
             left_matcher->setMinDisparity(0);
-            left_matcher->setNumDisparities(16);
-            left_matcher->setBlockSize(3);
+            left_matcher->setNumDisparities(4 * 16);
+            left_matcher->setBlockSize(7);
             left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(1);
@@ -134,7 +134,7 @@ private:
             // ----> Normalize disparity
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32FC1);
-            cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Scale disparity
+            cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
