@@ -134,12 +134,12 @@ private:
             // ----> Normalize disparity
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32FC1);
-            cv::multiply(lefta_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.    
+            cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.    
             cv::add(left_disp_float, 0.25, left_disp_float); // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
-            std::cout << "Disparity map min: " << minVal << " mx: " << maxVal << std::endl;
+            std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
 
             // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
