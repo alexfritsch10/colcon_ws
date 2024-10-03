@@ -5,7 +5,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include "videocapture.hpp"
 #include "sensorcapture.hpp"
-#include "tools.hpp"
 #include <opencv2/opencv.hpp>
 
 class ZedCameraNode : public rclcpp::Node
@@ -33,19 +32,6 @@ public:
         int sn = video_capture_.getSerialNumber();
         std::cout << "Connected to camera sn: " << sn << std::endl;
         // <---- Create Video Capture
-
-        // ----> Retrieve calibration file from Stereolabs server
-        std::string calibration_file;
-        // ZED Calibration
-        unsigned int serial_number = sn;
-        // Download camera calibration file
-        if (!sl_oc::tools::downloadCalibrationFile(serial_number, calibration_file))
-        {
-            std::cerr << "Could not load calibration file from Stereolabs servers" << std::endl;
-            return;
-        }
-        std::cout << "Calibration file found. Loading..." << std::endl;
-        RCLCPP_INFO(this->get_logger(), "Calibration file: %s", calibration_file.c_str());
 
         // Initialize sensor capture
         // std::vector<int> devs = sensor_capture_.getDeviceList();
