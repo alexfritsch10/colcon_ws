@@ -69,10 +69,10 @@ private:
 
         // Rotation and translation between the cameras
         cv::Mat R;
-        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
-        cv::Rodrigues(rvec, R);                                              // Convert the rotation vector into a 3x3 rotation matrix
+        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.1);   // Rotation vector (Rx, Ry, Rz in radians)
+        cv::Rodrigues(rvec, R);                                             // Convert the rotation vector into a 3x3 rotation matrix
 
-        cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
+        cv::Mat T = (cv::Mat_<double>(3, 1) << 120.312, 0.018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
 
         // Image size (width and height)
         cv::Size imageSize(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -139,7 +139,7 @@ private:
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32FC1);
             cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.
-            cv::add(left_disp_float, 0.25, left_disp_float);            // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
+            //cv::add(left_disp_float, 0.25, left_disp_float);            // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
