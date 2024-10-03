@@ -29,6 +29,23 @@ public:
             return;
         }
 
+        int sn = video_capture_.getSerialNumber();
+        std::cout << "Connected to camera sn: " << sn << std::endl;
+        // <---- Create Video Capture
+
+        // ----> Retrieve calibration file from Stereolabs server
+        std::string calibration_file;
+        // ZED Calibration
+        unsigned int serial_number = sn;
+        // Download camera calibration file
+        if (!sl_oc::tools::downloadCalibrationFile(serial_number, calibration_file))
+        {
+            std::cerr << "Could not load calibration file from Stereolabs servers" << std::endl;
+            return;
+        }
+        std::cout << "Calibration file found. Loading..." << std::endl;
+        RCLCPP_INFO(this->get_logger(), "Calibration file: %s", calibration_file.c_str());
+
         // Initialize sensor capture
         // std::vector<int> devs = sensor_capture_.getDeviceList();
         // if (!devs.empty())
@@ -134,8 +151,8 @@ private:
             // ----> Normalize disparity
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32FC1);
-            cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.    
-            cv::add(left_disp_float, 0.25, left_disp_float); // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
+            cv::multiply(left_disp_float, 1.0 / 64.0, left_disp_float); // Scale disparity values by 1/64 to get the disparity map in floating point format.
+            cv::add(left_disp_float, 0.25, left_disp_float);            // Correct the minimum disparity offset by adding 0.25 to each element in the disparity map.
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
