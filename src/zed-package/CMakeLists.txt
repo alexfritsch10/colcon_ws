@@ -64,9 +64,6 @@ target_link_libraries(${PROJECT_NAME}_rgbd_node
   ${OpenCV_LIBS}    # Link against OpenCV libraries, if applicable
 )
 
-add_definitions(-DSENSORS_MOD_AVAILABLE)
-add_definitions(-DVIDEO_MOD_AVAILABLE)
-
 install(TARGETS ${PROJECT_NAME}_rgbd_node
   DESTINATION lib/${PROJECT_NAME})
 

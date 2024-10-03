@@ -161,7 +161,7 @@ private:
 
             // ----> Calculate depth map from disparity.
             cv::Mat left_depth_map;
-            double num = 1054.66 * (-0.120312);
+            double num = 1054.66 * 120.312;
             cv::divide(num, left_disp_float, left_depth_map);
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
