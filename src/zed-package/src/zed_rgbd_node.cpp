@@ -155,22 +155,28 @@ private:
             std::cout << std::endl;
 
             // ----> Calculate depth map from disparity.
-            double fx = 527.33;        // Focal length for the left camera
-            double baseline = 120.312; // Baseline in mm
+            //double fx = 527.33;        // Focal length for the left camera
+            //double baseline = 120.312; // Baseline in mm
+            //cv::Mat left_depth_map;
+            //cv::divide(fx * baseline, left_disp_float, left_depth_map);
+
+            // Calculate depth map using the Q matrix
             cv::Mat left_depth_map;
-            cv::divide(fx * baseline, left_disp_float, left_depth_map);
+            cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
+
+            // Extract the Z channel from the 3D points (depth information)
+            std::vector<cv::Mat> channels(3);
+            cv::split(left_depth_map, channels);
+            left_depth_map = channels[2];
+            
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
             cv::minMaxLoc(left_depth_map, &minVal, &maxVal);
             std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
 
-            cv::Mat depth_visual;
-            left_depth_map.convertTo(depth_visual, CV_8UC1, 255.0 / maxVal);
-
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(depth_visual, rgb_image_pub_right, time, "mono8");
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
