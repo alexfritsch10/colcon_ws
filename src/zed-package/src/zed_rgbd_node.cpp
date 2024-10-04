@@ -10,8 +10,9 @@
 class ZedCameraNode : public rclcpp::Node
 {
 public:
-    ZedCameraNode()
-        : Node("zed_camera_node")
+    ZedCameraNode(sl_oc::video::VideoParams params)
+        : Node("zed_camera_node"),
+          video_capture_(params)
     {
         // Initialize camera calibration parameters
         initializeCalibrationParams();
@@ -28,10 +29,6 @@ public:
             RCLCPP_INFO(this->get_logger(), "Failed to initialize video capture");
             return;
         }
-
-        int sn = video_capture_.getSerialNumber();
-        std::cout << "Connected to camera sn: " << sn << std::endl;
-        // <---- Create Video Capture
 
         // Initialize sensor capture
         // std::vector<int> devs = sensor_capture_.getDeviceList();
@@ -69,8 +66,8 @@ private:
 
         // Rotation and translation between the cameras
         cv::Mat R;
-        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.1);   // Rotation vector (Rx, Ry, Rz in radians)
-        cv::Rodrigues(rvec, R);                                             // Convert the rotation vector into a 3x3 rotation matrix
+        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.1); // Rotation vector (Rx, Ry, Rz in radians)
+        cv::Rodrigues(rvec, R);                                           // Convert the rotation vector into a 3x3 rotation matrix
 
         cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
 
@@ -112,8 +109,8 @@ private:
 
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_AREA);
-            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_AREA);
+            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 4, 3);
@@ -155,10 +152,10 @@ private:
             std::cout << std::endl;
 
             // ----> Calculate depth map from disparity.
-            //double fx = 527.33;        // Focal length for the left camera
-            //double baseline = 120.312; // Baseline in mm
-            //cv::Mat left_depth_map;
-            //cv::divide(fx * baseline, left_disp_float, left_depth_map);
+            // double fx = 527.33;        // Focal length for the left camera
+            // double baseline = 120.312; // Baseline in mm
+            // cv::Mat left_depth_map;
+            // cv::divide(fx * baseline, left_disp_float, left_depth_map);
 
             // Calculate depth map using the Q matrix
             cv::Mat left_depth_map;
@@ -168,7 +165,7 @@ private:
             std::vector<cv::Mat> channels(3);
             cv::split(left_depth_map, channels);
             left_depth_map = channels[2];
-            
+
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
@@ -215,7 +212,9 @@ private:
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<ZedCameraNode>());
+    sl_oc::video::VideoParams params;
+    params.res = sl_oc::video::RESOLUTION::HD720;
+    rclcpp::spin(std::make_shared<ZedCameraNode>(params));
     rclcpp::shutdown();
     return 0;
 }
