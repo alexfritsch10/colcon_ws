@@ -76,7 +76,7 @@ private:
 
         // Compute rectification transforms
         std::cout << "Rotation matrix: " << R << std::endl;
-        cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
+        cv::stereoRectify(K_l, D_l, K_r, D_r, R, T, R_l, R_r, P_l, P_r, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize);
 
         std::cout << "Q matrix: " << Q << std::endl;
 
@@ -124,8 +124,8 @@ private:
 
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_AREA);
+            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 6, 3);
@@ -149,22 +149,18 @@ private:
 
             // ----> Normalize disparity
             cv::Mat left_disp_float;
-            left_disp.convertTo(left_disp_float, CV_32F, 1.0 / 16.0); // Scale disparity to [0, 1]
+            left_disp.convertTo(left_disp_float, CV_32F);
+            cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Divide by 16 to get the disparity in pixels
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
             std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
 
-            // Display ten random values of left_disp_float
-            std::cout << "Ten random disparity values: ";
-            for (int i = 0; i < 10; ++i)
-            {
-                int rand_row = rand() % left_disp_float.rows;
-                int rand_col = rand() % left_disp_float.cols;
-                float random_value = left_disp_float.at<float>(rand_row, rand_col);
-                std::cout << random_value << " ";
-            }
-            std::cout << std::endl;
+            cv::add(left_disp_float, 1, left_disp_float);  // Minimum disparity offset correction
+
+            cv::Mat left_disp_image;
+            cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
+            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_INFERNO); // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
 
             // ----> Calculate depth map from disparity.
             double fx = 527.33;        // Focal length for the left camera
@@ -189,7 +185,7 @@ private:
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(right_rectified, rgb_image_pub_right, time);
+            publishImage(left_disp_image, rgb_image_pub_right, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
