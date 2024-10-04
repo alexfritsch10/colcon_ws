@@ -76,7 +76,7 @@ private:
 
         // Compute rectification transforms
         std::cout << "Rotation matrix: " << R << std::endl;
-        cv::stereoRectify(K_l, D_l, K_r, D_r, R, T, R_l, R_r, P_l, P_r, Q, cv::CALIB_ZERO_DISPARITY, 0, imageSize);
+        cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q, cv::CALIB_ZERO_DISPARITY, 0);
 
         std::cout << "Q matrix: " << Q << std::endl;
 
