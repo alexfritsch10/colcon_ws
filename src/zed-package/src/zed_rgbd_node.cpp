@@ -84,6 +84,22 @@ private:
         // Create rectification maps for left and right images
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l, imageSize, CV_32F, M1l, M2l);
         cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r, imageSize, CV_32F, M1r, M2r);
+
+        std::cout << "Map M1l (0,0): " << M1l.at<float>(0, 0) << std::endl;
+        std::cout << "Map M1l (2,3): " << M1l.at<float>(2, 3) << std::endl;
+        std::cout << "Map M1l (5,5): " << M1l.at<float>(5, 5) << std::endl;
+
+        std::cout << "Map M2l (0,0): " << M2l.at<float>(0, 0) << std::endl;
+        std::cout << "Map M2l (2,3): " << M2l.at<float>(2, 3) << std::endl;
+        std::cout << "Map M2l (5,5): " << M2l.at<float>(5, 5) << std::endl;
+
+        std::cout << "Map M1r (0,0): " << M1r.at<float>(0, 0) << std::endl;
+        std::cout << "Map M1r (2,3): " << M1r.at<float>(2, 3) << std::endl;
+        std::cout << "Map M1r (5,5): " << M1r.at<float>(5, 5) << std::endl;
+
+        std::cout << "Map M2r (0,0): " << M2r.at<float>(0, 0) << std::endl;
+        std::cout << "Map M2r (2,3): " << M2r.at<float>(2, 3) << std::endl;
+        std::cout << "Map M2r (5,5): " << M2r.at<float>(5, 5) << std::endl;
     }
 
     void captureAndPublish()
@@ -152,19 +168,19 @@ private:
             std::cout << std::endl;
 
             // ----> Calculate depth map from disparity.
-            // double fx = 527.33;        // Focal length for the left camera
-            // double baseline = 120.312; // Baseline in mm
-            // cv::Mat left_depth_map;
-            // cv::divide(fx * baseline, left_disp_float, left_depth_map);
+            double fx = 527.33;        // Focal length for the left camera
+            double baseline = 120.312; // Baseline in mm
+            cv::Mat left_depth_map;
+            cv::divide(fx * baseline, left_disp_float, left_depth_map);
 
             // Calculate depth map using the Q matrix
-            cv::Mat left_depth_map;
-            cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
+            // cv::Mat left_depth_map;
+            // cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
 
-            // Extract the Z channel from the 3D points (depth information)
-            std::vector<cv::Mat> channels(3);
-            cv::split(left_depth_map, channels);
-            left_depth_map = channels[2];
+            // // Extract the Z channel from the 3D points (depth information)
+            // std::vector<cv::Mat> channels(3);
+            // cv::split(left_depth_map, channels);
+            // left_depth_map = channels[2];
 
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
