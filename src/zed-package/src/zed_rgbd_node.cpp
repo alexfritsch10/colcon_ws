@@ -67,7 +67,7 @@ private:
         // Rotation and translation between the cameras
         cv::Mat R;
         cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
-        cv::Rodrigues(rvec, R);                                           // Convert the rotation vector into a 3x3 rotation matrix
+        cv::Rodrigues(rvec, R);                                              // Convert the rotation vector into a 3x3 rotation matrix
 
         cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
 
@@ -76,6 +76,8 @@ private:
 
         // Compute rectification transforms
         cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
+
+        std::cout << "Q matrix: " << Q << std::endl;
 
         // Create rectification maps for left and right images
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l, imageSize, CV_32F, M1l, M2l);
