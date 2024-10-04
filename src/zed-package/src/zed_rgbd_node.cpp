@@ -77,6 +77,8 @@ private:
         // Compute rectification transforms
         cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
 
+        Q.at<double>(3, 3) = -184.26;
+
         std::cout << "Q matrix: " << Q << std::endl;
 
         // Create rectification maps for left and right images
