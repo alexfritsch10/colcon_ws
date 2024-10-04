@@ -59,9 +59,9 @@ private:
 
     void initializeCalibrationParams()
     {
-        // LEFT and RIGHT camera intrinsic matrices (K)
-        K_l = (cv::Mat_<double>(3, 3) << 1054.66, 0, 657.69, 0, 1054.35, 361.345, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 1054.73, 0, 635.525, 0, 1054.3, 368.3105, 0, 0, 1);
+        // LEFT and RIGHT camera intrinsic matrices (K) for !!720p resolution!!
+        K_l = (cv::Mat_<double>(3, 3) << 527.33, 0, 657.69, 0, 527.175, 361.345, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 527.365, 0, 635.525, 0, 527.15, 368.3105, 0, 0, 1);
 
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
