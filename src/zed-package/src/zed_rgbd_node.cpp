@@ -66,7 +66,7 @@ private:
 
         // Rotation and translation between the cameras
         cv::Mat R;
-        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.1); // Rotation vector (Rx, Ry, Rz in radians)
+        cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
         cv::Rodrigues(rvec, R);                                           // Convert the rotation vector into a 3x3 rotation matrix
 
         cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
