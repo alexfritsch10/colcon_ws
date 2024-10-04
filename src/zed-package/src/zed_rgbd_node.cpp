@@ -69,12 +69,13 @@ private:
         cv::Mat rvec = (cv::Mat_<double>(3, 1) << -0.0011, 0.0000, -0.0001); // Rotation vector (Rx, Ry, Rz in radians)
         cv::Rodrigues(rvec, R);                                              // Convert the rotation vector into a 3x3 rotation matrix
 
-        cv::Mat T = (cv::Mat_<double>(3, 1) << -0.120312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
+        cv::Mat T = (cv::Mat_<double>(3, 1) << 120.312, 0.000018, -0.0007697); // Translation vector from right camera to left camera in meters (Tx, Ty, Tz)
 
         // Image size (width and height)
         cv::Size imageSize(IMAGE_WIDTH, IMAGE_HEIGHT);
 
         // Compute rectification transforms
+        std::cout << "Rotation matrix: " << R << std::endl;
         cv::stereoRectify(K_l, D_l, K_r, D_r, imageSize, R, T, R_l, R_r, P_l, P_r, Q);
 
         Q.at<double>(3, 3) = -184.26;
