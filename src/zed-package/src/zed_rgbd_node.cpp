@@ -170,6 +170,7 @@ private:
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
+            publishImage(right_rectified, rgb_image_pub_right, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
