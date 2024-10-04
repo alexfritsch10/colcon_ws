@@ -19,7 +19,7 @@ public:
 
         // Initialize publishers adjusted to ORB SLAM 3
         rgb_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw", 10);
-        rgb_image_pub_right = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw/right", 10);
+        disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
         depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/depth/image_raw", 10);
         // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
@@ -156,11 +156,11 @@ private:
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
             std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
 
-            cv::add(left_disp_float, 1, left_disp_float);  // Minimum disparity offset correction
+            cv::add(left_disp_float, 1, left_disp_float); // Minimum disparity offset correction
 
             cv::Mat left_disp_image;
             cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
-            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET); // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
+            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET);  // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
 
             // ----> Calculate depth map from disparity.
             double fx = 527.33;        // Focal length for the left camera
@@ -185,7 +185,7 @@ private:
 
             // Publish the rectified images
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(left_disp_image, rgb_image_pub_right, time);
+            publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
@@ -214,8 +214,8 @@ private:
     cv::Mat M1l, M2l, M1r, M2r;
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_image_pub_right;
     // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     rclcpp::TimerBase::SharedPtr timer_;
