@@ -160,7 +160,7 @@ private:
 
             cv::Mat left_disp_image;
             cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
-            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_INFERNO); // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
+            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET); // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
 
             // ----> Calculate depth map from disparity.
             double fx = 527.33;        // Focal length for the left camera
