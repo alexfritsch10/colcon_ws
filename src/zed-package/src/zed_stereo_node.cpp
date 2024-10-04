@@ -10,8 +10,10 @@
 class ZedCameraNode : public rclcpp::Node
 {
 public:
-    ZedCameraNode()
-        : Node("zed_camera_node")
+    ZedCameraNode(sl_oc::video::VideoParams params)
+        : Node("zed_camera_node"),
+          video_capture_(params)
+
     {
         // Initialize camera calibration parameters
         initializeCalibrationParams();
@@ -160,15 +162,10 @@ private:
             left_raw = frameBGR(cv::Rect(0, 0, frameBGR.cols / 2, frameBGR.rows));
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
 
-            // Resize the images
-            cv::Mat left_resized, right_resized;
-            cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-            cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // Publish the rectified images
             publishImage(left_rectified, left_image_pub_, time);
@@ -222,7 +219,9 @@ private:
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<ZedCameraNode>());
+    sl_oc::video::VideoParams params;
+    params.res = sl_oc::video::RESOLUTION::HD720;
+    rclcpp::spin(std::make_shared<ZedCameraNode>(params));
     rclcpp::shutdown();
     return 0;
 }
