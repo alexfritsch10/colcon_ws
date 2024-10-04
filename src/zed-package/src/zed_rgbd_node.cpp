@@ -103,14 +103,10 @@ private:
             left_raw = frameBGR(cv::Rect(0, 0, frameBGR.cols / 2, frameBGR.rows));
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
 
-            cv::Mat left_resized, right_resized;
-            cv::resize(left_raw, left_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-            cv::resize(right_raw, right_resized, cv::Size(IMAGE_WIDTH, IMAGE_HEIGHT));
-
             // Rectify the images
             cv::Mat left_rectified, right_rectified;
-            cv::remap(left_resized, left_rectified, M1l, M2l, cv::INTER_LINEAR);
-            cv::remap(right_resized, right_rectified, M1r, M2r, cv::INTER_LINEAR);
+            cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_LINEAR);
+            cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_LINEAR);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 4, 3);
