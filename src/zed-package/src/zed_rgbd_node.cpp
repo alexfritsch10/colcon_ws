@@ -55,14 +55,14 @@ public:
     }
 
 private:
-    const int IMAGE_WIDTH = 1280;
-    const int IMAGE_HEIGHT = 720;
+    const int IMAGE_WIDTH = 672;
+    const int IMAGE_HEIGHT = 376;
 
     void initializeCalibrationParams()
     {
         // LEFT and RIGHT camera intrinsic matrices (K) for !!720p resolution!!
-        K_l = (cv::Mat_<double>(3, 3) << 527.33, 0, 657.69, 0, 527.175, 361.345, 0, 0, 1);
-        K_r = (cv::Mat_<double>(3, 3) << 527.365, 0, 635.525, 0, 527.15, 368.3105, 0, 0, 1);
+        K_l = (cv::Mat_<double>(3, 3) << 263.665, 0, 344.345, 0, 263.5875, 188.1725, 0, 0, 1);
+        K_r = (cv::Mat_<double>(3, 3) << 263.665, 0, 333.2625, 0, 263.665, 191.655255, 0, 0, 1);
 
         // LEFT and RIGHT distortion coefficients
         D_l = (cv::Mat_<double>(1, 5) << -0.0406, 0.0095, -0.0006, -0.0001, -0.0047);
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
     sl_oc::video::VideoParams params;
-    params.res = sl_oc::video::RESOLUTION::HD720;
+    params.res = sl_oc::video::RESOLUTION::VGA;
     rclcpp::spin(std::make_shared<ZedCameraNode>(params));
     rclcpp::shutdown();
     return 0;
