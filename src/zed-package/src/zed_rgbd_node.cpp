@@ -17,11 +17,13 @@ public:
         // Initialize camera calibration parameters
         initializeCalibrationParams();
 
-        // Initialize publishers adjusted to ORB SLAM 3
+        // Initialize publishers for ORB SLAM 3
         rgb_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/camera/image_raw", 10);
-        disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
         depth_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/depth/image_raw", 10);
-        // imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
+        imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
+
+        // Initialize publishers for debugging
+        // disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
 
         // Initialize the camera
         if (!video_capture_.initializeVideo())
@@ -31,23 +33,25 @@ public:
         }
 
         // Initialize sensor capture
-        // std::vector<int> devs = sensor_capture_.getDeviceList();
-        // if (!devs.empty())
-        // {
-        //     if (!sensor_capture_.initializeSensors(devs[0]))
-        //     {
-        //         RCLCPP_INFO(this->get_logger(), "Failed to initialize sensor capture");
-        //         return;
-        //     }
-        // }
-        // else
-        // {
-        //     RCLCPP_INFO(this->get_logger(), "No devices found for sensor capture");
-        //     return;
-        // }
+        std::vector<int> devs = sensor_capture_.getDeviceList();
+        if (!devs.empty())
+        {
+            if (!sensor_capture_.initializeSensors(devs[0]))
+            {
+                RCLCPP_INFO(this->get_logger(), "Failed to initialize sensor capture");
+                return;
+            }
+        }
+        else
+        {
+            RCLCPP_INFO(this->get_logger(), "No devices found for sensor capture");
+            return;
+        }
 
-        // Create a timer to capture and publish data at 2Hz
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&ZedCameraNode::captureAndPublish, this));
+        // Create a timer to capture and publish the left camera's image and depth map at 10Hz (has to match value in ZED2_params.yaml)
+        img_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublishImages, this));
+        // Create a timer to capture and publish IMU data at 200Hz (has to match value in ZED2_params.yaml)
+        imu_timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&ZedCameraNode::captureAndPublishIMU, this));
     }
 
 private:
@@ -83,31 +87,9 @@ private:
         // Create rectification maps for left and right images
         cv::initUndistortRectifyMap(K_l, D_l, R_l, P_l, imageSize, CV_32F, M1l, M2l);
         cv::initUndistortRectifyMap(K_r, D_r, R_r, P_r, imageSize, CV_32F, M1r, M2r);
-
-        std::cout << "Map M1l (0,0): " << M1l.at<float>(0, 0) << std::endl;
-        std::cout << "Map M1l (2,3): " << M1l.at<float>(2, 3) << std::endl;
-        std::cout << "Map M1l (5,5): " << M1l.at<float>(5, 5) << std::endl;
-
-        std::cout << "Map M2l (0,0): " << M2l.at<float>(0, 0) << std::endl;
-        std::cout << "Map M2l (2,3): " << M2l.at<float>(2, 3) << std::endl;
-        std::cout << "Map M2l (5,5): " << M2l.at<float>(5, 5) << std::endl;
-
-        std::cout << "Map M1r (0,0): " << M1r.at<float>(0, 0) << std::endl;
-        std::cout << "Map M1r (2,3): " << M1r.at<float>(2, 3) << std::endl;
-        std::cout << "Map M1r (5,5): " << M1r.at<float>(5, 5) << std::endl;
-
-        std::cout << "Map M2r (0,0): " << M2r.at<float>(0, 0) << std::endl;
-        std::cout << "Map M2r (2,3): " << M2r.at<float>(2, 3) << std::endl;
-        std::cout << "Map M2r (5,5): " << M2r.at<float>(5, 5) << std::endl;
     }
 
-    void captureAndPublish()
-    {
-        auto time = this->now();
-        captureAndPublishImages(time);
-    }
-
-    void captureAndPublishImages(rclcpp::Time time)
+    void captureAndPublishImages()
     {
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
@@ -184,8 +166,9 @@ private:
             std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
 
             // Publish the rectified images
+            auto time = this->now();
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(left_disp_image, disp_image_pub_, time);
+            //publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
@@ -204,19 +187,43 @@ private:
         pub->publish(*img_msg);
     }
 
+    void captureAndPublishIMU()
+    {
+        // Capture IMU data of last 5000 microseconds
+        sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
+        auto imu_msg = sensor_msgs::msg::Imu();
+        auto time = this->now();
+        imu_msg.header.stamp = time;
+        imu_msg.header.frame_id = "imu_frame";
+        imu_msg.linear_acceleration.x = imu_data.aX;
+        imu_msg.linear_acceleration.y = imu_data.aY;
+        imu_msg.linear_acceleration.z = imu_data.aZ;
+        imu_msg.angular_velocity.x = imu_data.gX;
+        imu_msg.angular_velocity.y = imu_data.gY;
+        imu_msg.angular_velocity.z = imu_data.gZ;
+
+        // publish IMU data
+        RCLCPP_INFO(this->get_logger(), "IMU data: aX=%f, aY=%f, aZ=%f, gX=%f, gY=%f, gZ=%f",
+                    imu_data.aX, imu_data.aY, imu_data.aZ, imu_data.gX, imu_data.gY, imu_data.gZ);
+        imu_pub_->publish(imu_msg);
+    }
+
     // Private members
     sl_oc::video::VideoCapture video_capture_;
-    // sl_oc::sensors::SensorCapture sensor_capture_;
+    sl_oc::sensors::SensorCapture sensor_capture_;
     cv::Mat K_l, K_r, D_l, D_r;
     // Output rectification matrices, projection matrices, and Q matrix (for disparity to depth)
     cv::Mat R_l, R_r, P_l, P_r, Q;
     // Rectification maps
     cv::Mat M1l, M2l, M1r, M2r;
 
+    // Publishers for ORB SLAM 3
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_image_pub_;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_pub_;
-    // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+
+    // Publisher for debugging
+    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
 
     rclcpp::TimerBase::SharedPtr timer_;
 };
