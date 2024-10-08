@@ -225,7 +225,8 @@ private:
     // Publisher for debugging
     //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
 
-    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr img_timer_;
+    rclcpp::TimerBase::SharedPtr imu_timer_;
 };
 
 int main(int argc, char *argv[])
