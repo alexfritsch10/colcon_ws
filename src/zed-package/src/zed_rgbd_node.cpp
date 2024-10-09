@@ -23,7 +23,7 @@ public:
         imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
         // Initialize publishers for debugging
-        // disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
+        disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
 
         // Initialize the camera
         if (!video_capture_.initializeVideo())
@@ -257,7 +257,7 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     // Publisher for debugging
-    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
 
     rclcpp::TimerBase::SharedPtr img_timer_;
     rclcpp::TimerBase::SharedPtr imu_timer_;
