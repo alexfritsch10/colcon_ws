@@ -23,7 +23,7 @@ public:
         imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu", 10);
 
         // Initialize publishers for debugging
-        disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
+        // disp_image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("/disp/image_raw", 10);
 
         // Initialize the camera
         if (!video_capture_.initializeVideo())
@@ -51,7 +51,7 @@ public:
         // Create a timer to capture and publish the left camera's image and depth map at 10Hz (has to match value in ZED2_params.yaml)
         img_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublishImages, this));
         // Create a timer to capture and publish IMU data at 200Hz (has to match value in ZED2_params.yaml)
-        //imu_timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&ZedCameraNode::captureAndPublishIMU, this));
+        imu_timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&ZedCameraNode::captureAndPublishIMU, this));
     }
 
 private:
@@ -92,9 +92,9 @@ private:
     void captureAndPublishImages()
     {
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
-
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
-        // RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
+
+        RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
 
         if (frame.data != nullptr && frame.width > 0 && frame.height > 0)
         {
@@ -110,43 +110,38 @@ private:
             cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_AREA);
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
-            int numDisparities = 16 * 3; // Must be divisible by 16
-            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, numDisparities, 3);
+            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 6, 3);
             left_matcher->setMinDisparity(0);
-            left_matcher->setNumDisparities(numDisparities);
+            left_matcher->setNumDisparities(16 * 6);
             left_matcher->setBlockSize(3);
             left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(96);
             left_matcher->setMode(cv::StereoSGBM::MODE_SGBM);
-            left_matcher->setPreFilterCap(31);
+            left_matcher->setPreFilterCap(63);
             left_matcher->setUniquenessRatio(5);
-            left_matcher->setSpeckleWindowSize(31);
+            left_matcher->setSpeckleWindowSize(255);
             left_matcher->setSpeckleRange(1);
 
             // ----> Compute disparity map
             cv::Mat left_gray, right_gray, left_disp;
             cv::cvtColor(left_rectified, left_gray, cv::COLOR_BGR2GRAY);
             cv::cvtColor(right_rectified, right_gray, cv::COLOR_BGR2GRAY);
-            // double resize_factor = 0.5;
-            // cv::resize(left_gray, left_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
-            // cv::resize(right_gray, right_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
             left_matcher->compute(left_gray, right_gray, left_disp);
 
             // ----> Normalize disparity
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32F);
-            cv::multiply(left_disp_float, 1.0 / 8.0, left_disp_float); // Combine normalization (disp*1/16) and multiplication by 2 because of the resize
-            // cv::resize(left_disp_float, left_disp_float, cv::Size(), 1 / resize_factor, 1 / resize_factor, cv::INTER_LINEAR);
+            cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Divide by 16 to get the disparity in pixels
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
-            // std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
+            std::cout << "Disparity map min: " << minVal << " max: " << maxVal << std::endl;
 
             cv::add(left_disp_float, 1, left_disp_float); // Minimum disparity offset correction
 
             cv::Mat left_disp_image;
-            cv::multiply(left_disp_float, 1./numDisparities, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
+            cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
             cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET);  // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
 
             // ----> Calculate depth map from disparity.
@@ -155,16 +150,25 @@ private:
             cv::Mat left_depth_map;
             cv::divide(fx * baseline, left_disp_float, left_depth_map);
 
+            // Calculate depth map using the Q matrix
+            // cv::Mat left_depth_map;
+            // cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
+
+            // // Extract the Z channel from the 3D points (depth information)
+            // std::vector<cv::Mat> channels(3);
+            // cv::split(left_depth_map, channels);
+            // left_depth_map = channels[2];
+
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
-            // std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
+            std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
             cv::minMaxLoc(left_depth_map, &minVal, &maxVal);
-            // std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
+            std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
 
             // Publish the rectified images
             auto time = this->now();
             publishImage(left_rectified, rgb_image_pub_, time);
-            publishImage(left_disp_image, disp_image_pub_, time);
+            //publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
         }
         else
@@ -185,7 +189,7 @@ private:
 
     void captureAndPublishIMU()
     {
-        // Capture IMU data of last 5000 milliseconds
+        // Capture IMU data of last 5000 microseconds
         sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
         auto imu_msg = sensor_msgs::msg::Imu();
         auto time = this->now();
@@ -219,7 +223,7 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     // Publisher for debugging
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
+    //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disp_image_pub_;
 
     rclcpp::TimerBase::SharedPtr img_timer_;
     rclcpp::TimerBase::SharedPtr imu_timer_;
