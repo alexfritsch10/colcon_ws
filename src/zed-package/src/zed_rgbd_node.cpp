@@ -200,7 +200,7 @@ private:
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            std::cout << "Time taken for image publishing: " << duration << " ms -------------------" << std::endl;
+            std::cout << "Time taken for image publishing: " << duration << " ms" << std::endl;
         }
         else
         {
@@ -208,7 +208,7 @@ private:
         }
         endTotal = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTotal - startTotal).count();
-        std::cout << "Total time taken for function: " << duration << " ms" << std::endl;
+        std::cout << "Total time taken for function: " << duration << " ms  <------------" << std::endl;
     }
 
     void publishImage(const cv::Mat &image, const rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub, rclcpp::Time time, const std::string &encoding = "bgr8")
