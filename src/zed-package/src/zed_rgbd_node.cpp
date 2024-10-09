@@ -51,7 +51,7 @@ public:
         // Create a timer to capture and publish the left camera's image and depth map at 10Hz (has to match value in ZED2_params.yaml)
         img_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ZedCameraNode::captureAndPublishImages, this));
         // Create a timer to capture and publish IMU data at 200Hz (has to match value in ZED2_params.yaml)
-        imu_timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&ZedCameraNode::captureAndPublishIMU, this));
+        //imu_timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&ZedCameraNode::captureAndPublishIMU, this));
     }
 
 private:
