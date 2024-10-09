@@ -172,9 +172,9 @@ private:
 
             cv::add(left_disp_float, 1, left_disp_float); // Minimum disparity offset correction
 
-            //cv::Mat left_disp_image;
-            //cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
-            //cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET);  // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
+            cv::Mat left_disp_image;
+            cv::multiply(left_disp_float, 1. / 96, left_disp_image, 255., CV_8UC1); // Normalization and rescaling
+            cv::applyColorMap(left_disp_image, left_disp_image, cv::COLORMAP_JET);  // COLORMAP_INFERNO is better, but it's only available starting from OpenCV v4.1.0
 
             // ----> Calculate depth map from disparity.
             start = std::chrono::high_resolution_clock::now();
@@ -186,15 +186,6 @@ private:
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for depth map calculation: " << duration << " ms" << std::endl;
 
-            // Calculate depth map using the Q matrix
-            // cv::Mat left_depth_map;
-            // cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
-
-            // // Extract the Z channel from the 3D points (depth information)
-            // std::vector<cv::Mat> channels(3);
-            // cv::split(left_depth_map, channels);
-            // left_depth_map = channels[2];
-
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 
@@ -205,7 +196,7 @@ private:
             start = std::chrono::high_resolution_clock::now();
             auto time = this->now();
             publishImage(left_rectified, rgb_image_pub_, time);
-            //publishImage(left_disp_image, disp_image_pub_, time);
+            publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
