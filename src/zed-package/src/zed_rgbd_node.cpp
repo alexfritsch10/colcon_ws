@@ -134,7 +134,7 @@ private:
             left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
             left_matcher->setDisp12MaxDiff(96);
-            left_matcher->setMode(cv::StereoSGBM::MODE_SGBM_3WAY);
+            left_matcher->setMode(cv::StereoSGBM::MODE_SGBM);
             left_matcher->setPreFilterCap(31);
             left_matcher->setUniquenessRatio(5);
             left_matcher->setSpeckleWindowSize(31);
