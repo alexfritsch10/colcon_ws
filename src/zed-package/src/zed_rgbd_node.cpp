@@ -98,7 +98,7 @@ private:
         start = std::chrono::high_resolution_clock::now();
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
         end = std::chrono::high_resolution_clock::now();
-        duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         std::cout << "Time taken for image capturing: " << duration << " ms" << std::endl;
         
         RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
@@ -112,7 +112,7 @@ private:
             left_raw = frameBGR(cv::Rect(0, 0, frameBGR.cols / 2, frameBGR.rows));
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for image conversion and splitting: " << duration << " ms" << std::endl;
 
             // Rectify the images
@@ -121,7 +121,7 @@ private:
             cv::remap(left_raw, left_rectified, M1l, M2l, cv::INTER_AREA);
             cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_AREA);
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for image rectification: " << duration << " ms" << std::endl;
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
@@ -145,7 +145,7 @@ private:
             cv::cvtColor(right_rectified, right_gray, cv::COLOR_BGR2GRAY);
             left_matcher->compute(left_gray, right_gray, left_disp);
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for stereo matching: " << duration << " ms" << std::endl;
 
             // ----> Normalize disparity
@@ -154,7 +154,7 @@ private:
             left_disp.convertTo(left_disp_float, CV_32F);
             cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Divide by 16 to get the disparity in pixels
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for disparity normalization: " << duration << " ms" << std::endl;
 
             double minVal, maxVal;
@@ -174,7 +174,7 @@ private:
             cv::Mat left_depth_map;
             cv::divide(fx * baseline, left_disp_float, left_depth_map);
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for depth map calculation: " << duration << " ms" << std::endl;
 
             // Calculate depth map using the Q matrix
@@ -199,7 +199,7 @@ private:
             //publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
             end = std::chrono::high_resolution_clock::now();
-            duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for image publishing: " << duration << " ms" << std::endl;
         }
         else
@@ -220,7 +220,7 @@ private:
 
     void captureAndPublishIMU()
     {
-        // Capture IMU data of last 5000 microseconds
+        // Capture IMU data of last 5000 milliseconds
         sl_oc::sensors::data::Imu imu_data = sensor_capture_.getLastIMUData(5000);
         auto imu_msg = sensor_msgs::msg::Imu();
         auto time = this->now();
