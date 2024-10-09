@@ -127,9 +127,9 @@ private:
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             start = std::chrono::high_resolution_clock::now();
-            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 6, 3);
+            cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 4, 3);
             left_matcher->setMinDisparity(0);
-            left_matcher->setNumDisparities(16 * 6);
+            left_matcher->setNumDisparities(16 * 4);
             left_matcher->setBlockSize(3);
             left_matcher->setP1(8 * 3 * 9);
             left_matcher->setP2(32 * 3 * 9);
