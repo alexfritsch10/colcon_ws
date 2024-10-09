@@ -100,7 +100,7 @@ private:
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
         end = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        // std::cout << "Time taken for image capturing: " << duration << " ms" << std::endl;
+        std::cout << "Time taken for image capturing: " << duration << " ms" << std::endl;
         
         // RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
 
@@ -114,7 +114,7 @@ private:
             right_raw = frameBGR(cv::Rect(frameBGR.cols / 2, 0, frameBGR.cols / 2, frameBGR.rows));
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for image conversion and splitting: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for image conversion and splitting: " << duration << " ms" << std::endl;
 
             // Rectify the images
             start = std::chrono::high_resolution_clock::now();
@@ -123,7 +123,7 @@ private:
             cv::remap(right_raw, right_rectified, M1r, M2r, cv::INTER_AREA);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for image rectification: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for image rectification: " << duration << " ms" << std::endl;
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
             start = std::chrono::high_resolution_clock::now();
@@ -141,7 +141,7 @@ private:
             left_matcher->setSpeckleRange(1);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for SGBM initialization: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for SGBM initialization: " << duration << " ms" << std::endl;
 
             // ----> Compute disparity map
             start = std::chrono::high_resolution_clock::now();
@@ -154,7 +154,7 @@ private:
             left_matcher->compute(left_gray, right_gray, left_disp);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for stereo matching: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for stereo matching: " << duration << " ms" << std::endl;
 
             // ----> Normalize disparity
             cv::Mat left_disp_float;
@@ -164,7 +164,7 @@ private:
             cv::resize(left_disp_float, left_disp_float, cv::Size(), 1 / resize_factor, 1 / resize_factor, cv::INTER_LINEAR);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for disparity normalization and inflating: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for disparity normalization: " << duration << " ms" << std::endl;
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
@@ -184,7 +184,7 @@ private:
             cv::divide(fx * baseline, left_disp_float, left_depth_map);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            // std::cout << "Time taken for depth map calculation: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for depth map calculation: " << duration << " ms" << std::endl;
 
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             // std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
@@ -200,7 +200,7 @@ private:
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            std::cout << "Time taken for image publishing: " << duration << " ms" << std::endl;
+            std::cout << "Time taken for image publishing: " << duration << " ms -------------------" << std::endl;
         }
         else
         {
