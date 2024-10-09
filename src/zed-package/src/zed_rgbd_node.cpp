@@ -91,8 +91,9 @@ private:
 
     void captureAndPublishImages()
     {
+        std::chrono::high_resolution_clock::time_point start, end, startTotal, endTotal;
+        startTotal = std::chrono::high_resolution_clock::now();
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
-        std::chrono::high_resolution_clock::time_point start, end;
         long long duration;
 
         start = std::chrono::high_resolution_clock::now();
@@ -125,6 +126,7 @@ private:
             std::cout << "Time taken for image rectification: " << duration << " ms" << std::endl;
 
             // ----> Stereo matching using Semi-Global Block Matching (SGBM), which is more accurate than BM but slower and requires more memory and CPU and GPU power
+            start = std::chrono::high_resolution_clock::now();
             cv::Ptr<cv::StereoSGBM> left_matcher = cv::StereoSGBM::create(0, 16 * 6, 3);
             left_matcher->setMinDisparity(0);
             left_matcher->setNumDisparities(16 * 6);
@@ -137,6 +139,9 @@ private:
             left_matcher->setUniquenessRatio(5);
             left_matcher->setSpeckleWindowSize(255);
             left_matcher->setSpeckleRange(1);
+            end = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            std::cout << "Time taken for SGBM initialization: " << duration << " ms" << std::endl;
 
             // ----> Compute disparity map
             start = std::chrono::high_resolution_clock::now();
@@ -193,8 +198,8 @@ private:
             std::cout << "Depth map min: " << minVal << " max: " << maxVal << std::endl;
 
             // Publish the rectified images
-            auto time = this->now();
             start = std::chrono::high_resolution_clock::now();
+            auto time = this->now();
             publishImage(left_rectified, rgb_image_pub_, time);
             //publishImage(left_disp_image, disp_image_pub_, time);
             publishImage(left_depth_map, depth_image_pub_, time, "32FC1");
@@ -206,6 +211,9 @@ private:
         {
             RCLCPP_INFO(this->get_logger(), "Invalid frame data or dimensions: width=%d, height=%d", frame.width, frame.height);
         }
+        endTotal = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTotal - startTotal).count();
+        std::cout << "Total time taken for function: " << duration << " ms" << std::endl;
     }
 
     void publishImage(const cv::Mat &image, const rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr &pub, rclcpp::Time time, const std::string &encoding = "bgr8")
