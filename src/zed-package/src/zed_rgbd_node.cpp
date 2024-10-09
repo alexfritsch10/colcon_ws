@@ -148,9 +148,9 @@ private:
             cv::Mat left_gray, right_gray, left_disp;
             cv::cvtColor(left_rectified, left_gray, cv::COLOR_BGR2GRAY);
             cv::cvtColor(right_rectified, right_gray, cv::COLOR_BGR2GRAY);
-            double resize_factor = 0.5;
-            cv::resize(left_gray, left_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
-            cv::resize(right_gray, right_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
+            // double resize_factor = 0.5;
+            // cv::resize(left_gray, left_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
+            // cv::resize(right_gray, right_gray, cv::Size(), resize_factor, resize_factor, cv::INTER_AREA);
             left_matcher->compute(left_gray, right_gray, left_disp);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -160,8 +160,8 @@ private:
             cv::Mat left_disp_float;
             start = std::chrono::high_resolution_clock::now();
             left_disp.convertTo(left_disp_float, CV_32F);
-            cv::multiply(left_disp_float, 1.0 / 8.0, left_disp_float); // Combine normalization (disp*1/16) and multiplication by 2 because of the resize
-            cv::resize(left_disp_float, left_disp_float, cv::Size(), 1 / resize_factor, 1 / resize_factor, cv::INTER_LINEAR);
+            cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Combine normalization (disp*1/16) and multiplication by 2 because of the resize
+            // cv::resize(left_disp_float, left_disp_float, cv::Size(), 1 / resize_factor, 1 / resize_factor, cv::INTER_LINEAR);
             end = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             std::cout << "Time taken for disparity normalization and inflating: " << duration << " ms" << std::endl;
