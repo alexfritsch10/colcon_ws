@@ -54,17 +54,30 @@ add_definitions(-DVIDEO_MOD_AVAILABLE)
 install(TARGETS ${PROJECT_NAME}_stereo_node
   DESTINATION lib/${PROJECT_NAME})
 
-# RGB Node ---------------------->
-  add_executable(${PROJECT_NAME}_rgbd_node src/zed_rgbd_node.cpp)
+# RGB Node HD (720p)---------------------->
+  add_executable(${PROJECT_NAME}_rgbd_node_hd src/zed_rgbd_node_hd.cpp)
 
-ament_target_dependencies(${PROJECT_NAME}_rgbd_node rclcpp sensor_msgs image_transport cv_bridge OpenCV)
+ament_target_dependencies(${PROJECT_NAME}_rgbd_node_hd rclcpp sensor_msgs image_transport cv_bridge OpenCV)
 # Link the executable with the necessary libraries
-target_link_libraries(${PROJECT_NAME}_rgbd_node
+target_link_libraries(${PROJECT_NAME}_rgbd_node_hd
   zed_open_capture  # Link against the zed_open_capture library
   ${OpenCV_LIBS}    # Link against OpenCV libraries, if applicable
 )
 
-install(TARGETS ${PROJECT_NAME}_rgbd_node
+install(TARGETS ${PROJECT_NAME}_rgbd_node_hd
+  DESTINATION lib/${PROJECT_NAME})
+
+# RGB Node VGA (376p)---------------------->
+add_executable(${PROJECT_NAME}_rgbd_node_vga src/zed_rgbd_node_vga.cpp)
+
+ament_target_dependencies(${PROJECT_NAME}_rgbd_node_vga rclcpp sensor_msgs image_transport cv_bridge OpenCV)
+# Link the executable with the necessary libraries
+target_link_libraries(${PROJECT_NAME}_rgbd_node_vga
+  zed_open_capture  # Link against the zed_open_capture library
+  ${OpenCV_LIBS}    # Link against OpenCV libraries, if applicable
+)
+
+install(TARGETS ${PROJECT_NAME}_rgbd_node_vga
   DESTINATION lib/${PROJECT_NAME})
 
 # Ament package
