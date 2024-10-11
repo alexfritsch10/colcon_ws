@@ -150,15 +150,6 @@ private:
             cv::Mat left_depth_map;
             cv::divide(fx * baseline, left_disp_float, left_depth_map);
 
-            // Calculate depth map using the Q matrix
-            // cv::Mat left_depth_map;
-            // cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
-
-            // // Extract the Z channel from the 3D points (depth information)
-            // std::vector<cv::Mat> channels(3);
-            // cv::split(left_depth_map, channels);
-            // left_depth_map = channels[2];
-
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
 

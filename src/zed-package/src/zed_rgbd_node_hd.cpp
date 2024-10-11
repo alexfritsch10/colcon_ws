@@ -123,16 +123,17 @@ private:
             left_matcher->setSpeckleWindowSize(255);
             left_matcher->setSpeckleRange(1);
 
-            // ----> Compute disparity map
-            cv::Mat left_gray, right_gray, left_disp;
-            cv::cvtColor(left_rectified, left_gray, cv::COLOR_BGR2GRAY);
-            cv::cvtColor(right_rectified, right_gray, cv::COLOR_BGR2GRAY);
-            left_matcher->compute(left_gray, right_gray, left_disp);
+            // ----> Deflate images and compute disparity map
+            double resize_factor = 0.5;
+            cv::resize(left_rectified, left_rectified, cv::Size(), resize_factor, resize_factor);
+            cv::resize(right_rectified, right_rectified, cv::Size(), resize_factor, resize_factor);
+            left_matcher->compute(left_rectified, right_rectified, left_disp);
 
-            // ----> Normalize disparity
+            // ----> Normalize disparity and inflate image again
             cv::Mat left_disp_float;
             left_disp.convertTo(left_disp_float, CV_32F);
-            cv::multiply(left_disp_float, 1.0 / 16.0, left_disp_float); // Divide by 16 to get the disparity in pixels
+            cv::multiply(left_disp_float, 1.0 / 8.0, left_disp_float); // Combine division by 16 and multiplication by 2 to get division by 2
+            cv::resize(left_disp_float, left_disp_float, cv::Size(), 1 / resize_factor, 1 / resize_factor);
 
             double minVal, maxVal;
             cv::minMaxLoc(left_disp_float, &minVal, &maxVal);
@@ -149,15 +150,6 @@ private:
             double baseline = 120.312; // Baseline in mm
             cv::Mat left_depth_map;
             cv::divide(fx * baseline, left_disp_float, left_depth_map);
-
-            // Calculate depth map using the Q matrix
-            // cv::Mat left_depth_map;
-            // cv::reprojectImageTo3D(left_disp_float, left_depth_map, Q, true);
-
-            // // Extract the Z channel from the 3D points (depth information)
-            // std::vector<cv::Mat> channels(3);
-            // cv::split(left_depth_map, channels);
-            // left_depth_map = channels[2];
 
             float central_depth = left_depth_map.at<float>(left_depth_map.rows / 2, left_depth_map.cols / 2);
             std::cout << "Depth of the central pixel: " << central_depth << " mm" << std::endl;
