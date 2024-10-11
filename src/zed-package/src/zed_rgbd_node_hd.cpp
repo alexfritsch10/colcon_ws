@@ -125,6 +125,7 @@ private:
 
             // ----> Deflate images and compute disparity map
             double resize_factor = 0.5;
+            cv::Mat left_disp;
             cv::resize(left_rectified, left_rectified, cv::Size(), resize_factor, resize_factor);
             cv::resize(right_rectified, right_rectified, cv::Size(), resize_factor, resize_factor);
             left_matcher->compute(left_rectified, right_rectified, left_disp);
