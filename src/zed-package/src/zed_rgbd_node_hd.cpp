@@ -92,7 +92,12 @@ private:
     void captureAndPublishImages()
     {
         cv::Mat frameYUV, frameBGR, left_raw, right_raw;
+
+        auto start = std::chrono::high_resolution_clock::now();
         const sl_oc::video::Frame frame = video_capture_.getLastFrame();
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        RCLCPP_INFO(this->get_logger(), "getLastFrame took %f seconds", elapsed.count());
 
         RCLCPP_INFO(this->get_logger(), "Raw Camera Frame data: width=%d, height=%d", frame.width, frame.height);
 
